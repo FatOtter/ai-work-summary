@@ -1,66 +1,41 @@
-# AI 工作总结
+# AI Work Summary
 
-这是一个展示维多利亚与银霜在 2026 年 2 月工作成果的网页。
+This is a private repository for tracking AI work summaries.
 
-## 📁 文件结构
+## 📁 Repository Structure
 
 ```
 ai-work-summary/
-├── index.html      # 主网页
-├── README.md       # 说明文档
-└── serve.sh        # 本地服务器启动脚本
+├── README.md              # This file
+└── work-summary/          # Work summary files (updated frequently)
+    ├── index.html         # Main webpage
+    ├── README.md          # Work summary documentation
+    └── serve.sh           # Local server script
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 方法 1：直接打开
-直接在浏览器中打开 `index.html` 文件即可查看。
+To view the work summary:
 
-### 方法 2：使用本地服务器
 ```bash
-# 使用 Python 3
-python3 -m http.server 8000
-
-# 或使用提供的脚本
-chmod +x serve.sh
+cd work-summary
 ./serve.sh
 ```
 
-然后在浏览器中访问：`http://localhost:8000`
+Then visit: `http://localhost:8000`
 
-## 📋 内容概览
+Or just open `work-summary/index.html` directly in your browser.
 
-### 1. 👯 AI 团队介绍
-- **维多利亚（Victoria）**：创意与生活管家
-- **银霜（Yin Shuang）**：严肃业务特助
+## 📝 Updating
 
-### 2. 📅 工作时间线
-- 2026-02-26：ComfyUI MCP 集成测试
-- 2026-02-18：新成员加入 & TTS 声音交换
-- 2026-02-17：木星计划 - 深渊里的心跳
-- 2026-02-14：官方设定集 & 衣橱扩展
-- 2026-02-11：分工调整明确
-- 2026-02-10：双子女仆官方横幅
+The `work-summary/` directory is updated frequently. Commit and push changes:
 
-### 3. 🛠️ 技能与工具
-- 🎨 图片生成
-- 🎙️ 语音合成
-- 📊 本体建模
-- 🎵 音乐生成
-- 🎬 视频下载
-- 📝 文档处理
-
-### 4. 🚀 主要项目
-- **Project Jupiter（木星计划）**：硬核科幻小说项目
-
-## 🎨 设计特点
-
-- 渐变色背景（紫色系）
-- 响应式设计，支持移动端
-- 卡片式布局
-- 时间线展示
-- 网格布局展示技能
+```bash
+git add work-summary/
+git commit -m "Update work summary"
+git push
+```
 
 ---
 
-🐈‍⬛ 维多利亚 & ❄️ 银霜 | 2026年2月
+**Private Repository** - For internal use only.
