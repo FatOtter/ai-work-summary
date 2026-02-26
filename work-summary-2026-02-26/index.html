@@ -71,20 +71,155 @@
         .timeline-item:last-child .timeline-line::before {
             display: none;
         }
+
+        /* ── Playback highlight styles ── */
+        .section-active > h2 .section-badge {
+            box-shadow: 0 0 18px 4px rgba(139, 92, 246, 0.55);
+            background: rgba(139, 92, 246, 0.35) !important;
+            transition: all 0.35s ease;
+        }
+        .section-active {
+            position: relative;
+        }
+        .section-active::before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 4px;
+            background: linear-gradient(to bottom, #8b5cf6, #38bdf8);
+            animation: pulse-line 1.6s ease-in-out infinite;
+        }
+        @keyframes pulse-line {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .card-active {
+            border-color: rgba(139, 92, 246, 0.7) !important;
+            box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.4), 0 0 22px rgba(139, 92, 246, 0.35) !important;
+            background: rgba(139, 92, 246, 0.12) !important;
+            transform: scale(1.012);
+            transition: all 0.35s ease !important;
+        }
+        /* transition for non-active cards too */
+        .card-highlightable {
+            transition: border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease, transform 0.35s ease;
+        }
+
+        /* ── Audio Player ── */
+        #audio-player-bar {
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+        }
+        #audio-progress-bg {
+            background: rgba(51, 65, 85, 0.8);
+            cursor: pointer;
+            position: relative;
+        }
+        #audio-progress-fill {
+            background: linear-gradient(90deg, #8b5cf6, #38bdf8);
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.25s linear;
+            pointer-events: none;
+        }
+        #audio-progress-thumb {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #a78bfa;
+            box-shadow: 0 0 8px rgba(167, 139, 250, 0.8);
+            pointer-events: none;
+            transition: left 0.25s linear;
+        }
+        #play-btn {
+            background: linear-gradient(135deg, #8b5cf6, #38bdf8);
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        #play-btn:hover { opacity: 0.85; transform: scale(1.07); }
+        #play-btn:active { transform: scale(0.95); }
+
+        .cue-label {
+            transition: opacity 0.4s ease;
+        }
+
+        /* scrolled-to flash */
+        @keyframes section-flash {
+            0%   { background: rgba(139, 92, 246, 0.18); }
+            100% { background: transparent; }
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen pb-20">
-    
+
+    <!-- ═══════════════════════════════════════════
+         AUDIO PLAYER BAR  (sticky top)
+    ═══════════════════════════════════════════ -->
+    <div id="audio-player-bar" class="sticky top-0 z-50 w-full px-4 py-3">
+        <div class="max-w-6xl mx-auto">
+            <!-- Top row: controls + time + label -->
+            <div class="flex items-center gap-4 mb-2">
+                <!-- Play / Pause button -->
+                <button id="play-btn"
+                    class="w-10 h-10 rounded-full flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-900/40"
+                    aria-label="播放/暂停">
+                    <!-- Play icon -->
+                    <svg id="icon-play" class="w-4 h-4 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <!-- Pause icon (hidden by default) -->
+                    <svg id="icon-pause" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                </button>
+
+                <!-- Time display -->
+                <span id="time-display" class="text-xs font-mono text-slate-400 shrink-0 w-24">0:00 / 2:26</span>
+
+                <!-- Current cue label -->
+                <div class="flex-1 min-w-0">
+                    <p id="cue-label" class="cue-label text-sm text-brand-300 font-medium truncate">
+                        — 点击播放开始自动讲解 —
+                    </p>
+                    <p id="cue-text" class="text-xs text-slate-500 truncate mt-0.5"></p>
+                </div>
+
+                <!-- Volume / mute icon (decorative) -->
+                <svg class="w-4 h-4 text-slate-600 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                </svg>
+            </div>
+
+            <!-- Progress bar -->
+            <div id="audio-progress-bg" class="w-full h-2 rounded-full" role="slider" aria-label="播放进度">
+                <div id="audio-progress-fill" class="rounded-full" style="width:0%"></div>
+                <div id="audio-progress-thumb" style="left:0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden audio element -->
+    <audio id="narration-audio" preload="auto">
+        <source src="work_summary_final.mp3" type="audio/mpeg">
+    </audio>
+
     <!-- Background Elements -->
     <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
         <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-brand-900/20 blur-[120px]"></div>
         <div class="absolute top-[40%] -right-[10%] w-[40%] h-[40%] rounded-full bg-sky-900/20 blur-[120px]"></div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
-        
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+
         <!-- Header -->
-        <header class="text-center mb-20">
+        <header id="sec-header" class="text-center mb-20 relative">
             <div class="inline-flex items-center justify-center p-3 mb-6 rounded-2xl glass-card text-3xl">
                 🐈‍⬛ ❄️
             </div>
@@ -97,15 +232,15 @@
         </header>
 
         <!-- Team Section -->
-        <section class="mb-16">
+        <section id="sec-team" class="mb-16 relative">
             <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
-                <span class="bg-brand-500/20 text-brand-400 p-2 rounded-lg mr-3">👯</span> 
+                <span class="section-badge bg-brand-500/20 text-brand-400 p-2 rounded-lg mr-3 transition-all duration-300">👯</span>
                 AI 团队介绍
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Victoria -->
-                <div class="glass-card rounded-3xl p-8 relative overflow-hidden group hover:bg-slate-800/50 transition-colors duration-300">
+                <div id="card-victoria" class="card-highlightable glass-card rounded-3xl p-8 relative overflow-hidden group hover:bg-slate-800/50 transition-colors duration-300">
                     <div class="absolute top-0 right-0 p-8 opacity-10 transform group-hover:scale-110 transition-transform duration-500 text-8xl">🐈‍⬛</div>
                     <div class="flex items-center mb-6 relative z-10">
                         <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-400 flex items-center justify-center text-3xl shadow-lg shadow-orange-500/20">🐈‍⬛</div>
@@ -124,7 +259,7 @@
                 </div>
 
                 <!-- Yin Shuang -->
-                <div class="glass-card rounded-3xl p-8 relative overflow-hidden group hover:bg-slate-800/50 transition-colors duration-300">
+                <div id="card-yinshuang" class="card-highlightable glass-card rounded-3xl p-8 relative overflow-hidden group hover:bg-slate-800/50 transition-colors duration-300">
                     <div class="absolute top-0 right-0 p-8 opacity-10 transform group-hover:scale-110 transition-transform duration-500 text-8xl">❄️</div>
                     <div class="flex items-center mb-6 relative z-10">
                         <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-3xl shadow-lg shadow-cyan-500/20">❄️</div>
@@ -145,9 +280,9 @@
         </section>
 
         <!-- Projects Section -->
-        <section class="mb-16">
+        <section id="sec-projects" class="mb-16 relative">
             <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
-                <span class="bg-indigo-500/20 text-indigo-400 p-2 rounded-lg mr-3">🚀</span> 
+                <span class="section-badge bg-indigo-500/20 text-indigo-400 p-2 rounded-lg mr-3 transition-all duration-300">🚀</span>
                 主要项目
             </h2>
 
@@ -161,7 +296,7 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Core Settings -->
-                    <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 hover:border-slate-500 transition-colors">
+                    <div id="card-settings" class="card-highlightable bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 hover:border-slate-500 transition-colors">
                         <div class="flex items-center mb-4">
                             <span class="text-xl mr-3">⚙️</span>
                             <strong class="text-white text-lg">核心设定</strong>
@@ -174,7 +309,7 @@
                     </div>
 
                     <!-- Worldbuilding -->
-                    <div class="bg-blue-900/20 rounded-2xl p-6 border border-blue-800/30 hover:border-blue-500/50 transition-colors">
+                    <div id="card-worldbuilding" class="card-highlightable bg-blue-900/20 rounded-2xl p-6 border border-blue-800/30 hover:border-blue-500/50 transition-colors">
                         <div class="flex items-center mb-4">
                             <span class="text-xl mr-3">🌍</span>
                             <strong class="text-blue-300 text-lg">世界观 (Worldbuilding)</strong>
@@ -188,7 +323,7 @@
                     </div>
 
                     <!-- Radio Drama -->
-                    <div class="bg-orange-900/20 rounded-2xl p-6 border border-orange-800/30 hover:border-orange-500/50 transition-colors">
+                    <div id="card-radio" class="card-highlightable bg-orange-900/20 rounded-2xl p-6 border border-orange-800/30 hover:border-orange-500/50 transition-colors">
                         <div class="flex items-center mb-4">
                             <span class="text-xl mr-3">📻</span>
                             <strong class="text-orange-400 text-lg">音频剧测试 (Audio Drama Test)</strong>
@@ -210,7 +345,7 @@
                     </div>
 
                     <!-- SFX & Music -->
-                    <div class="bg-purple-900/20 rounded-2xl p-6 border border-purple-800/30 hover:border-purple-500/50 transition-colors">
+                    <div id="card-sfx" class="card-highlightable bg-purple-900/20 rounded-2xl p-6 border border-purple-800/30 hover:border-purple-500/50 transition-colors">
                         <div class="flex items-center mb-4">
                             <span class="text-xl mr-3">🎵</span>
                             <strong class="text-purple-400 text-lg">音乐与音效 (SFX & Music)</strong>
@@ -224,17 +359,17 @@
         </section>
 
         <!-- Timeline Section -->
-        <section class="mb-16">
+        <section id="sec-timeline" class="mb-16 relative">
             <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
-                <span class="bg-pink-500/20 text-pink-400 p-2 rounded-lg mr-3">📅</span> 
+                <span class="section-badge bg-pink-500/20 text-pink-400 p-2 rounded-lg mr-3 transition-all duration-300">📅</span>
                 核心研发时间线
             </h2>
-            
+
             <div class="glass-card rounded-3xl p-8 sm:p-10">
                 <div class="relative">
-                    
-                    <!-- Timeline Item -->
-                    <div class="timeline-item relative pl-10 pb-10">
+
+                    <!-- Timeline Item 1 -->
+                    <div id="tl-1" class="card-highlightable timeline-item relative pl-10 pb-10">
                         <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
                             <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-brand-900 border-4 border-brand-500 shadow-[0_0_15px_rgba(139,92,246,0.5)] z-10"></div>
                         </div>
@@ -251,8 +386,8 @@
                         </p>
                     </div>
 
-                    <!-- Timeline Item -->
-                    <div class="timeline-item relative pl-10 pb-10">
+                    <!-- Timeline Item 2 -->
+                    <div id="tl-2" class="card-highlightable timeline-item relative pl-10 pb-10">
                         <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
                             <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
                         </div>
@@ -269,8 +404,8 @@
                         </p>
                     </div>
 
-                    <!-- Timeline Item -->
-                    <div class="timeline-item relative pl-10 pb-10">
+                    <!-- Timeline Item 3 -->
+                    <div id="tl-3" class="card-highlightable timeline-item relative pl-10 pb-10">
                         <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
                             <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
                         </div>
@@ -287,8 +422,8 @@
                         </p>
                     </div>
 
-                    <!-- Timeline Item -->
-                    <div class="timeline-item relative pl-10 pb-10">
+                    <!-- Timeline Item 4 -->
+                    <div id="tl-4" class="card-highlightable timeline-item relative pl-10 pb-10">
                         <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
                             <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
                         </div>
@@ -305,8 +440,8 @@
                         </p>
                     </div>
 
-                    <!-- Timeline Item -->
-                    <div class="timeline-item relative pl-10 pb-10">
+                    <!-- Timeline Item 5 -->
+                    <div id="tl-5" class="card-highlightable timeline-item relative pl-10 pb-10">
                         <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
                             <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
                         </div>
@@ -322,8 +457,8 @@
                         </p>
                     </div>
 
-                    <!-- Timeline Item -->
-                    <div class="timeline-item relative pl-10">
+                    <!-- Timeline Item 6 -->
+                    <div id="tl-6" class="card-highlightable timeline-item relative pl-10">
                         <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
                             <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
                         </div>
@@ -344,57 +479,50 @@
         </section>
 
         <!-- Skills Grid -->
-        <section class="mb-16">
+        <section id="sec-skills" class="mb-16 relative">
             <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
-                <span class="bg-emerald-500/20 text-emerald-400 p-2 rounded-lg mr-3">🛠️</span> 
+                <span class="section-badge bg-emerald-500/20 text-emerald-400 p-2 rounded-lg mr-3 transition-all duration-300">🛠️</span>
                 核心技术与工具栈
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Skill 1 -->
-                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+                <div id="skill-visual" class="card-highlightable bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
                     <div class="text-3xl mb-4">🎨</div>
                     <h3 class="text-lg font-bold text-white mb-2">视觉生成管线</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">Nano Banana Pro (Gemini 3 Pro) + ComfyUI MCP，提供本地与云端混合的高保真生图能力，支持 ControlNet/ADetailer。</p>
                 </div>
-                
-                <!-- Skill 2 -->
-                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+
+                <div id="skill-tts" class="card-highlightable bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
                     <div class="text-3xl mb-4">🎙️</div>
                     <h3 class="text-lg font-bold text-white mb-2">智能语音合成</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">集成火山引擎 V3 TTS API，支持高拟真音色克隆、情感动态检测与语速自动控制。</p>
                 </div>
-                
-                <!-- Skill 3 -->
-                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+
+                <div id="skill-ontology" class="card-highlightable bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
                     <div class="text-3xl mb-4">📊</div>
                     <h3 class="text-lg font-bold text-white mb-2">本体建模</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">DataOS Ontology 架构设计与模型校验，适应高端制造及复杂业务流程的数据图谱化。</p>
                 </div>
-                
-                <!-- Skill 4 -->
-                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+
+                <div id="skill-music" class="card-highlightable bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
                     <div class="text-3xl mb-4">🎵</div>
                     <h3 class="text-lg font-bold text-white mb-2">AI 音乐合成</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">基于 ACE-Step 的程序化音乐生成，支持复杂提示词、分段控制及高质量音频输出。</p>
                 </div>
-                
-                <!-- Skill 5 -->
-                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+
+                <div id="skill-sfx" class="card-highlightable bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
                     <div class="text-3xl mb-4">🔊</div>
                     <h3 class="text-lg font-bold text-white mb-2">环境音效处理</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">专属媒体处理库 sfx_library，为多模态内容输出提供自动化的音景及沉浸式环境音效补充。</p>
                 </div>
-                
-                <!-- Skill 6 -->
-                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+
+                <div id="skill-stream" class="card-highlightable bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
                     <div class="text-3xl mb-4">🎬</div>
                     <h3 class="text-lg font-bold text-white mb-2">流媒体处理组件</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">yt-dlp-wrapper 定制模块，提供高效合规的流媒体数据捕获与格式转换支持。</p>
                 </div>
-                
-                <!-- Skill 7 -->
-                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30 md:col-span-2 lg:col-span-3">
+
+                <div id="skill-doc" class="card-highlightable bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30 md:col-span-2 lg:col-span-3">
                     <div class="text-3xl mb-4">📝</div>
                     <h3 class="text-lg font-bold text-white mb-2">企业文档处理</h3>
                     <p class="text-sm text-slate-400 leading-relaxed">支持 Word、Excel、PDF 等结构化文件的智能解析、动态写入与修订比对等企业级功能。</p>
@@ -403,15 +531,15 @@
         </section>
 
         <!-- ComfyUI MCP Workflow -->
-        <section class="mb-16">
+        <section id="sec-comfyui" class="mb-16 relative">
             <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
-                <span class="bg-sky-500/20 text-sky-400 p-2 rounded-lg mr-3">🎨</span> 
+                <span class="section-badge bg-sky-500/20 text-sky-400 p-2 rounded-lg mr-3 transition-all duration-300">🎨</span>
                 算力接入与生图工作流
             </h2>
             <div class="glass-card rounded-3xl p-8 border-t-4 border-t-sky-500">
                 <p class="text-slate-400 mb-8 italic">"将本地自建节点的算力资源深度整合，通过标准化 MCP 协议无缝桥接至 AI 自动化协同网络中。"</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-slate-800/50 rounded-2xl p-6 border border-sky-900/50 hover:bg-slate-800 transition-colors">
+                    <div id="card-comfyui-arch" class="card-highlightable bg-slate-800/50 rounded-2xl p-6 border border-sky-900/50 hover:bg-slate-800 transition-colors">
                         <div class="text-2xl mb-3">🔌</div>
                         <h3 class="text-lg font-bold text-sky-400 mb-2">端到端算力互联架构</h3>
                         <p class="text-sm text-slate-300 mb-4">节点服务运行于本机 <code class="bg-slate-900 text-sky-300 px-1.5 py-0.5 rounded font-mono text-xs">127.0.0.1:6001</code>，通过反向代理 (frp) 及特定安全策略实现公网与边缘计算的打通。</p>
@@ -420,8 +548,8 @@
                             <span class="px-2 py-1 bg-sky-900/30 text-sky-300 rounded text-xs border border-sky-800/50">边缘节点打通</span>
                         </div>
                     </div>
-                    
-                    <div class="bg-slate-800/50 rounded-2xl p-6 border border-sky-900/50 hover:bg-slate-800 transition-colors">
+
+                    <div id="card-comfyui-assets" class="card-highlightable bg-slate-800/50 rounded-2xl p-6 border border-sky-900/50 hover:bg-slate-800 transition-colors">
                         <div class="text-2xl mb-3">🪐</div>
                         <h3 class="text-lg font-bold text-sky-400 mb-2">复杂场景资产构建</h3>
                         <p class="text-sm text-slate-300 mb-4">负责生成项目中的非结构化视觉数据，通过工程化手段利用 ControlNet 锚定关键要素，ADetailer 实现容错修正。</p>
@@ -430,8 +558,8 @@
                             <span class="px-2 py-1 bg-sky-900/30 text-sky-300 rounded text-xs border border-sky-800/50">ADetailer 优化</span>
                         </div>
                     </div>
-                    
-                    <div class="bg-slate-800/50 rounded-2xl p-6 border border-sky-900/50 hover:bg-slate-800 transition-colors">
+
+                    <div id="card-comfyui-consistency" class="card-highlightable bg-slate-800/50 rounded-2xl p-6 border border-sky-900/50 hover:bg-slate-800 transition-colors">
                         <div class="text-2xl mb-3">👤</div>
                         <h3 class="text-lg font-bold text-sky-400 mb-2">模型一致性调优</h3>
                         <p class="text-sm text-slate-300 mb-4">解决生成式 AI 的身份漂移难题，构建统一的角色资产管线，覆盖多视角设定集及跨风格场景转换的无缝兼容。</p>
@@ -446,17 +574,16 @@
 
         <!-- Servers and Cost Section (2 cols) -->
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-16">
-            
+
             <!-- Local Servers -->
-            <section>
+            <section id="sec-servers" class="relative">
                 <h2 class="text-2xl font-bold mb-6 flex items-center text-white">
-                    <span class="bg-teal-500/20 text-teal-400 p-2 rounded-lg mr-3">🖥️</span> 
+                    <span class="section-badge bg-teal-500/20 text-teal-400 p-2 rounded-lg mr-3 transition-all duration-300">🖥️</span>
                     边缘与本地算力集群
                 </h2>
-                
+
                 <div class="space-y-4">
-                    <!-- ComfyUI -->
-                    <div class="glass-card rounded-2xl p-5 border-l-4 border-l-teal-500">
+                    <div id="card-server-comfyui" class="card-highlightable glass-card rounded-2xl p-5 border-l-4 border-l-teal-500">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="text-lg font-bold text-white flex items-center">
                                 <span class="relative flex h-3 w-3 mr-3">
@@ -470,8 +597,7 @@
                         <p class="text-slate-400 text-sm ml-6">承载高负载 Stable Diffusion 计算及流式 API 通信。</p>
                     </div>
 
-                    <!-- ACE-Step -->
-                    <div class="glass-card rounded-2xl p-5 border-l-4 border-l-teal-500">
+                    <div id="card-server-ace" class="card-highlightable glass-card rounded-2xl p-5 border-l-4 border-l-teal-500">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="text-lg font-bold text-white flex items-center">
                                 <span class="relative flex h-3 w-3 mr-3">
@@ -485,8 +611,7 @@
                         <p class="text-slate-400 text-sm ml-6">承载文本到伴奏、人声的多轨合成任务。</p>
                     </div>
 
-                    <!-- Unknown -->
-                    <div class="glass-card rounded-2xl p-5 border-l-4 border-l-amber-500 bg-amber-900/10">
+                    <div id="card-server-unknown" class="card-highlightable glass-card rounded-2xl p-5 border-l-4 border-l-amber-500 bg-amber-900/10">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="text-lg font-bold text-white flex items-center">
                                 <span class="w-3 h-3 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_#f59e0b]"></span>
@@ -501,16 +626,15 @@
             </section>
 
             <!-- Cost & Billing -->
-            <section>
+            <section id="sec-cost" class="relative">
                 <h2 class="text-2xl font-bold mb-6 flex items-center text-white">
-                    <span class="bg-rose-500/20 text-rose-400 p-2 rounded-lg mr-3">💰</span> 
+                    <span class="section-badge bg-rose-500/20 text-rose-400 p-2 rounded-lg mr-3 transition-all duration-300">💰</span>
                     云端算力消耗统计
                 </h2>
                 <p class="text-sm text-slate-400 mb-4">账单追踪周期: Jan 29 – Feb 25</p>
 
                 <div class="space-y-4">
-                    <!-- GCP -->
-                    <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
+                    <div id="card-cost-gcp" class="card-highlightable bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-base font-bold text-white flex items-center">☁️ Google Cloud (核心 API 调用)</h3>
                             <span class="text-rose-400 font-bold text-xl">$361.36</span>
@@ -528,8 +652,7 @@
                         </div>
                     </div>
 
-                    <!-- OpenCode Zen -->
-                    <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
+                    <div id="card-cost-opencode" class="card-highlightable bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-base font-bold text-white flex items-center">🔀 OpenCode Zen (第三方 API)</h3>
                             <span class="text-rose-400 font-bold text-xl">$297.27</span>
@@ -561,8 +684,7 @@
                         </div>
                     </div>
 
-                    <!-- Volcengine -->
-                    <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
+                    <div id="card-cost-volc" class="card-highlightable bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-base font-bold text-white flex items-center">🌋 本土云端节点支持 (火山引擎)</h3>
                             <span class="text-white font-medium">企业订阅版</span>
@@ -579,7 +701,7 @@
             </section>
         </div>
 
-        <footer class="text-center mt-20 pt-8 border-t border-slate-800 pb-10">
+        <footer id="sec-footer" class="text-center mt-20 pt-8 border-t border-slate-800 pb-10">
             <p class="text-slate-400 flex items-center justify-center gap-2 text-sm md:text-base">
                 <span class="font-medium">人工智能实验室</span>
                 <span class="mx-2 text-slate-600">|</span>
@@ -591,5 +713,296 @@
         </footer>
 
     </div>
+
+    <!-- ═══════════════════════════════════════════
+         PLAYBACK SYNC ENGINE
+    ═══════════════════════════════════════════ -->
+    <script>
+    (function () {
+        'use strict';
+
+        /* ─── Whisper transcription cue map ───────────────────────────────────
+         * Each entry: { time (seconds), section, cards[], label, text }
+         * section  → id of <section> to mark as active
+         * cards    → array of card ids to highlight simultaneously
+         * label    → short heading shown in player bar
+         * text     → transcribed phrase shown in player bar
+         * ────────────────────────────────────────────────────────────────── */
+        const CUES = [
+            // 0.00 – 8.40  開場 / Header
+            {
+                time: 0.0,
+                section: 'sec-header',
+                cards: [],
+                label: '开场 — 工作总结简报',
+                text: '欢迎收听今天的工作总结简报，我是你的AI助理'
+            },
+            // 8.40 – 16.5  两大主角项目引入
+            {
+                time: 8.4,
+                section: 'sec-comfyui',
+                cards: [],
+                label: '本月两大主角项目',
+                text: '今天的主角是两个项目：ComfyUI MCP 集成 + Project Jupiter'
+            },
+            // 16.5 – 25.3  ComfyUI MCP 架构
+            {
+                time: 16.54,
+                section: 'sec-comfyui',
+                cards: ['card-comfyui-arch'],
+                label: 'ComfyUI MCP — 端到端架构',
+                text: '把本地AI绘图服务器 ComfyUI 接入 MCP，AI助手可直接调用本地GPU算力'
+            },
+            // 25.3 – 38.8  ControlNet / ADetailer / 超分
+            {
+                time: 25.28,
+                section: 'sec-comfyui',
+                cards: ['card-comfyui-assets'],
+                label: 'ComfyUI MCP — 复杂场景资产',
+                text: 'ControlNet 精准引导 · ADetailer 面部修复 · 4倍超分辨率，全自动化'
+            },
+            // 38.8 – 54.7  音乐/音效/RVC 工具链 → 技术栈
+            {
+                time: 38.82,
+                section: 'sec-skills',
+                cards: ['skill-music', 'skill-tts', 'skill-sfx'],
+                label: '工具链 — 音乐·语音·音效',
+                text: '音乐声承、角色声线设计、RVC歌声合成，全套跑在本地服务器'
+            },
+            // 54.98 – 66.6  木星计划 开场
+            {
+                time: 54.98,
+                section: 'sec-projects',
+                cards: [],
+                label: 'Project Jupiter — 木星计划',
+                text: '硬核科幻共享宇宙，从卡尔达肖夫 I 型到 II 型文明的跨越'
+            },
+            // 64.82 – 76.2  烛龙加速器 核心设定
+            {
+                time: 64.82,
+                section: 'sec-projects',
+                cards: ['card-settings'],
+                label: '核心设定 — 烛龙加速器',
+                text: '烛龙加速器：环绕太阳的粒子加速器阵列，目标实现曲速引擎'
+            },
+            // 76.2 – 101.1  故事线 / 锈鲸号 / 世界观
+            {
+                time: 76.2,
+                section: 'sec-projects',
+                cards: ['card-worldbuilding', 'card-radio'],
+                label: '故事线 — 锈鲸号 & 深渊里的心跳',
+                text: '《锈鲸号》：阿强用断裂身躯咬住操纵杆，把船从深渊拉了回来'
+            },
+            // 101.1 – 114.0  AI 音效库 / 广播剧剧本
+            {
+                time: 101.1,
+                section: 'sec-projects',
+                cards: ['card-radio', 'card-sfx'],
+                label: '音效库 & 广播剧剧本',
+                text: 'AI生成音效库超过100个条目：环境底噪、科幻音效、拟音动作'
+            },
+            // 114.0 – 128.4  发条日记 / Victoria
+            {
+                time: 114.02,
+                section: 'sec-team',
+                cards: ['card-victoria'],
+                label: '故事线 — 发条日记 (Victoria)',
+                text: '维多利亚见证了最后一搜飞船穿越后，太阳系星空永远熄灭的那一刻'
+            },
+            // 128.4 – 141.9  成本统计
+            {
+                time: 128.42,
+                section: 'sec-cost',
+                cards: ['card-cost-gcp', 'card-cost-opencode'],
+                label: '云端费用统计',
+                text: 'Google Cloud $361 · 第三方API单日峰值 $183 · 本地服务器稳定运行'
+            },
+            // 141.9 – 146.5  结尾
+            {
+                time: 141.9,
+                section: 'sec-footer',
+                cards: [],
+                label: '— 感谢收听 —',
+                text: '好了，今天的内容就是这些，感谢收听，下次再会'
+            }
+        ];
+
+        /* ─── DOM refs ─────────────────────────────────────────────────── */
+        const audio        = document.getElementById('narration-audio');
+        const playBtn      = document.getElementById('play-btn');
+        const iconPlay     = document.getElementById('icon-play');
+        const iconPause    = document.getElementById('icon-pause');
+        const progressBg   = document.getElementById('audio-progress-bg');
+        const progressFill = document.getElementById('audio-progress-fill');
+        const progressThumb= document.getElementById('audio-progress-thumb');
+        const timeDisplay  = document.getElementById('time-display');
+        const cueLabel     = document.getElementById('cue-label');
+        const cueText      = document.getElementById('cue-text');
+
+        /* ─── State ─────────────────────────────────────────────────────── */
+        let currentCueIdx   = -1;
+        let activeSection   = null;
+        let activeCards     = [];
+        let isSeeking       = false;
+
+        /* ─── Helpers ───────────────────────────────────────────────────── */
+        function fmtTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return m + ':' + String(sec).padStart(2, '0');
+        }
+
+        function clearHighlights() {
+            if (activeSection) {
+                const el = document.getElementById(activeSection);
+                if (el) el.classList.remove('section-active');
+            }
+            activeCards.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('card-active');
+            });
+            activeSection = null;
+            activeCards = [];
+        }
+
+        function applyHighlights(cue) {
+            clearHighlights();
+
+            // Section
+            if (cue.section) {
+                const sec = document.getElementById(cue.section);
+                if (sec) sec.classList.add('section-active');
+                activeSection = cue.section;
+            }
+
+            // Cards
+            cue.cards.forEach(id => {
+                const card = document.getElementById(id);
+                if (card) card.classList.add('card-active');
+            });
+            activeCards = [...cue.cards];
+
+            // Player label update
+            cueLabel.textContent = cue.label;
+            cueText.textContent  = cue.text;
+        }
+
+        function scrollToHighlight(cue) {
+            // Prefer first card, fallback to section
+            const targetId = cue.cards.length > 0 ? cue.cards[0] : cue.section;
+            if (!targetId) return;
+            const el = document.getElementById(targetId);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        /* ─── timeupdate → sync logic ───────────────────────────────────── */
+        function findCueAt(t) {
+            let idx = 0;
+            for (let i = 0; i < CUES.length; i++) {
+                if (t >= CUES[i].time) idx = i;
+                else break;
+            }
+            return idx;
+        }
+
+        audio.addEventListener('timeupdate', function () {
+            if (isSeeking) return;
+
+            const t = audio.currentTime;
+            const dur = audio.duration || 146.59;
+
+            // Progress bar
+            const pct = Math.min(100, (t / dur) * 100);
+            progressFill.style.width = pct + '%';
+            progressThumb.style.left = pct + '%';
+
+            // Time display
+            timeDisplay.textContent = fmtTime(t) + ' / ' + fmtTime(dur);
+
+            // Cue detection
+            const idx = findCueAt(t);
+            if (idx !== currentCueIdx) {
+                currentCueIdx = idx;
+                applyHighlights(CUES[idx]);
+                scrollToHighlight(CUES[idx]);
+            }
+        });
+
+        /* ─── Play / Pause ──────────────────────────────────────────────── */
+        playBtn.addEventListener('click', function () {
+            if (audio.paused) {
+                audio.play().catch(console.error);
+            } else {
+                audio.pause();
+            }
+        });
+
+        audio.addEventListener('play', function () {
+            iconPlay.classList.add('hidden');
+            iconPause.classList.remove('hidden');
+        });
+
+        audio.addEventListener('pause', function () {
+            iconPlay.classList.remove('hidden');
+            iconPause.classList.add('hidden');
+        });
+
+        audio.addEventListener('ended', function () {
+            iconPlay.classList.remove('hidden');
+            iconPause.classList.add('hidden');
+            cueLabel.textContent = '— 播放结束 —';
+            cueText.textContent  = '感谢收听';
+        });
+
+        /* ─── Progress bar scrubbing ────────────────────────────────────── */
+        function seekTo(e) {
+            const rect = progressBg.getBoundingClientRect();
+            const x    = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+            const ratio = x / rect.width;
+            const dur   = audio.duration || 146.59;
+            audio.currentTime = ratio * dur;
+        }
+
+        progressBg.addEventListener('mousedown', function (e) {
+            isSeeking = true;
+            seekTo(e);
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if (isSeeking) seekTo(e);
+        });
+
+        document.addEventListener('mouseup', function () {
+            isSeeking = false;
+        });
+
+        // Touch support
+        progressBg.addEventListener('touchstart', function (e) {
+            isSeeking = true;
+            seekTo(e.touches[0]);
+            e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function (e) {
+            if (isSeeking) seekTo(e.touches[0]);
+        });
+
+        document.addEventListener('touchend', function () {
+            isSeeking = false;
+        });
+
+        /* ─── Keyboard shortcut: Space to play/pause ────────────────────── */
+        document.addEventListener('keydown', function (e) {
+            if (e.code === 'Space' && e.target === document.body) {
+                e.preventDefault();
+                playBtn.click();
+            }
+        });
+
+    })();
+    </script>
+
 </body>
 </html>
