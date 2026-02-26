@@ -45,6 +45,7 @@ chmod +x serve.sh
 ### 3. 🛠️ 技能与工具
 - 🎨 图片生成
 - 🎙️ 语音合成
+- 🔊 音效库 (SFX Library)
 - 📊 本体建模
 - 🎵 音乐生成
 - 🎬 视频下载
@@ -52,6 +53,23 @@ chmod +x serve.sh
 
 ### 4. 🚀 主要项目
 - **Project Jupiter（木星计划）**：硬核科幻小说项目
+- **Radio Drama（广播剧）**：基于木星计划的沉浸式音频创作
+- **Worldbuilding（世界观设定）**：完善木星计划的物理常数、社会结构与技术树
+- **SFX Library（音效库）**：为广播剧与视频项目构建的专属 AI 生成音效资源库
+
+### 5. 🎨 ComfyUI MCP & 工作流
+- **MCP 集成**：通过 Model Context Protocol 直接调用本地 ComfyUI 算力
+- **自动化工作流**：实现从提示词到 ControlNet 引导、ADetailer 面部修复、4x 超分的一键式生成
+
+### 6. 💰 算力与账单消耗 (春节期间 Jan 29 – Feb 25)
+- **Google Cloud (Gemini API)**：净费用 $361.36（原价 $446.73，节省 $85.37），Feb 19 单日峰值约 $75
+- **Zenmux / 第三方 API**：主力模型 `claude-sonnet-4-6`，Feb 22 单日峰值约 $183；其他模型：`gemini-3.1-pro`、`glm-5 (lite)`、`kimi-k2.5 (lite)`；当前余额 $72.73
+- **火山引擎 (Volcengine)**：Coding Plan Pro（¥200/月），截至 Feb 26 已用月度配额 7%
+
+### 7. 🖥️ 本地算力服务器
+- **ComfyUI**（端口 8188）：Stable Diffusion 图片生成，运行中
+- **ACE-Step**（端口 7865）：AI 音乐生成，运行中
+- **未知服务**（端口 6003）：调查中，待确认后更新
 
 ## 🎨 设计特点
 
@@ -60,6 +78,9 @@ chmod +x serve.sh
 - 卡片式布局
 - 时间线展示
 - 网格布局展示技能
+- 费用卡片含进度条与峰值标注
+- 服务器状态卡片含在线/待确认指示灯
+- 深色 ComfyUI 专属卡片（暗蓝 + 青色霓虹风格）
 
 ---
 
