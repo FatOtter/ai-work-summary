@@ -1,878 +1,595 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 工作总结 - 维多利亚与银霜的工作记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            900: '#4c1d95',
+                        }
+                    },
+                    animation: {
+                        'gradient': 'gradient 8s linear infinite',
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+            color: #e2e8f0;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
-        
-        header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            padding: 40px 0;
+        .gradient-text {
+            background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-        
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-        
-        .timeline::before {
+        .timeline-line::before {
             content: '';
             position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            left: 11px;
+            top: 24px;
+            bottom: -24px;
+            width: 2px;
+            background: linear-gradient(to bottom, #8b5cf6, rgba(139, 92, 246, 0.1));
         }
-        
-        .timeline-item {
-            position: relative;
-            margin-bottom: 30px;
-            padding-left: 20px;
-        }
-        
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -34px;
-            top: 5px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #667eea;
-            border: 3px solid white;
-            box-shadow: 0 0 0 3px #667eea;
-        }
-        
-        .timeline-date {
-            color: #764ba2;
-            font-weight: bold;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-        
-        .timeline-title {
-            color: #333;
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .timeline-desc {
-            color: #666;
-            line-height: 1.6;
-        }
-        
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .skill-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 10px;
-            padding: 20px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .skill-card h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-        
-        .skill-card p {
-            color: #555;
-            font-size: 0.95em;
-            line-height: 1.5;
-        }
-        
-        .team-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 20px;
-        }
-        
-        .agent-card {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .agent-card:nth-child(2) {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-        }
-        
-        .agent-emoji {
-            font-size: 4em;
-            margin-bottom: 15px;
-        }
-        
-        .agent-name {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .agent-role {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 15px;
-        }
-        
-        .agent-skills {
-            text-align: left;
-        }
-        
-        .agent-skills li {
-            color: #555;
-            margin-bottom: 8px;
-            padding-left: 20px;
-            position: relative;
-        }
-        
-        .agent-skills li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #667eea;
-            font-weight: bold;
-        }
-        
-        footer {
-            text-align: center;
-            color: white;
-            margin-top: 50px;
-            padding: 20px;
-            opacity: 0.8;
-        }
-
-        /* ── ComfyUI MCP Card ── */
-        .comfyui-card {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            color: #e0e0e0;
-        }
-        .comfyui-card h2 {
-            color: #00d2ff;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-            border-bottom: 3px solid #00d2ff;
-            padding-bottom: 10px;
-        }
-        .comfyui-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .comfyui-inner {
-            background: rgba(255,255,255,0.07);
-            border-radius: 10px;
-            padding: 20px;
-            border-left: 4px solid #00d2ff;
-            backdrop-filter: blur(4px);
-        }
-        .comfyui-inner h3 {
-            color: #00d2ff;
-            margin-bottom: 10px;
-            font-size: 1.05em;
-        }
-        .comfyui-inner p, .comfyui-inner li {
-            color: #ccc;
-            line-height: 1.6;
-            font-size: 0.95em;
-        }
-        .comfyui-inner code {
-            background: rgba(0,210,255,0.15);
-            color: #00d2ff;
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-        .comfyui-tag {
-            display: inline-block;
-            background: rgba(0,210,255,0.2);
-            color: #00d2ff;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.82em;
-            margin: 3px 3px 3px 0;
-            border: 1px solid rgba(0,210,255,0.3);
-        }
-
-        /* ── Cost & Billing ── */
-        .cost-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .cost-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf5 100%);
-            border-radius: 12px;
-            padding: 22px;
-            border-left: 4px solid #764ba2;
-        }
-
-        .cost-card h3 {
-            color: #764ba2;
-            margin-bottom: 12px;
-            font-size: 1.05em;
-        }
-
-        .cost-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            border-bottom: 1px solid #dde2ee;
-            font-size: 0.92em;
-            color: #444;
-        }
-
-        .cost-row:last-child { border-bottom: none; }
-
-        .cost-row .label { color: #666; }
-        .cost-row .value { font-weight: 600; color: #333; }
-        .cost-row .value.highlight { color: #e05c2a; }
-        .cost-row .value.savings  { color: #2a9d5c; }
-        .cost-row .value.balance  { color: #667eea; }
-
-        .model-tag {
-            display: inline-block;
-            background: #764ba2;
-            color: white;
-            padding: 2px 9px;
-            border-radius: 12px;
-            font-size: 0.78em;
-            margin: 3px 3px 3px 0;
-        }
-
-        .model-tag.primary { background: #667eea; }
-        .model-tag.secondary { background: #999; }
-
-        .spike-note {
-            margin-top: 10px;
-            font-size: 0.85em;
-            color: #888;
-            font-style: italic;
-        }
-
-        /* ── Progress bar ── */
-        .quota-bar-wrap {
-            margin-top: 10px;
-        }
-
-        .quota-bar-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.88em;
-            color: #555;
-            margin-bottom: 5px;
-        }
-
-        .quota-bar {
-            height: 10px;
-            background: #dde2ee;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .quota-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            border-radius: 6px;
-            transition: width 0.4s ease;
-        }
-
-        /* ── Local Server ── */
-        .server-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .server-card {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-            border-radius: 12px;
-            padding: 22px;
-            border-left: 4px solid #43a047;
-        }
-
-        .server-card.unknown {
-            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
-            border-left-color: #f9a825;
-        }
-
-        .server-card h3 {
-            color: #2e7d32;
-            margin-bottom: 12px;
-            font-size: 1.05em;
-        }
-
-        .server-card.unknown h3 { color: #f57f17; }
-
-        .server-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.07);
-            font-size: 0.91em;
-            color: #444;
-        }
-
-        .server-row:last-child { border-bottom: none; }
-        .server-row .label { color: #666; }
-        .server-row .value { font-weight: 600; }
-
-        .status-dot {
-            display: inline-block;
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
-
-        .status-dot.online  { background: #43a047; box-shadow: 0 0 5px #43a047; }
-        .status-dot.unknown { background: #f9a825; box-shadow: 0 0 5px #f9a825; }
-        
-        .badge {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            margin-right: 8px;
-            margin-bottom: 8px;
-        }
-        
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8em;
-            }
-            
-            .card {
-                padding: 20px;
-            }
+        .timeline-item:last-child .timeline-line::before {
+            display: none;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🐈‍⬛ AI 工作总结</h1>
-            <p>维多利亚与银霜的工作记录 | 2026年2月</p>
+<body class="antialiased min-h-screen pb-20">
+    
+    <!-- Background Elements -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-brand-900/20 blur-[120px]"></div>
+        <div class="absolute top-[40%] -right-[10%] w-[40%] h-[40%] rounded-full bg-sky-900/20 blur-[120px]"></div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+        
+        <!-- Header -->
+        <header class="text-center mb-20">
+            <div class="inline-flex items-center justify-center p-3 mb-6 rounded-2xl glass-card text-3xl">
+                🐈‍⬛ ❄️
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight text-white">
+                AI 工作总结
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 font-light">
+                维多利亚与银霜的工作记录 <span class="mx-2 text-slate-600">|</span> 2026年2月
+            </p>
         </header>
-        
-        <div class="card">
-            <h2>👯 AI 团队介绍</h2>
-            <div class="team-section">
-                <div class="agent-card">
-                    <div class="agent-emoji">🐈‍⬛</div>
-                    <div class="agent-name">维多利亚 (Victoria)</div>
-                    <div class="agent-role">创意与生活管家</div>
-                    <ul class="agent-skills">
-                        <li>图片生成 (Nano Banana Pro / ComfyUI)</li>
-                        <li>故事创作与讲述</li>
-                        <li>GitHub Pages 维护</li>
-                        <li>非正式项目创意工作</li>
-                        <li>黑色小本本记录管理</li>
+
+        <!-- Team Section -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
+                <span class="bg-brand-500/20 text-brand-400 p-2 rounded-lg mr-3">👯</span> 
+                AI 团队介绍
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Victoria -->
+                <div class="glass-card rounded-3xl p-8 relative overflow-hidden group hover:bg-slate-800/50 transition-colors duration-300">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 transform group-hover:scale-110 transition-transform duration-500 text-8xl">🐈‍⬛</div>
+                    <div class="flex items-center mb-6 relative z-10">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-400 flex items-center justify-center text-3xl shadow-lg shadow-orange-500/20">🐈‍⬛</div>
+                        <div class="ml-5">
+                            <h3 class="text-2xl font-bold text-white">维多利亚 (Victoria)</h3>
+                            <p class="text-orange-400 font-medium mt-1">创意交互与运营助理</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 relative z-10">
+                        <li class="flex items-start"><svg class="w-5 h-5 text-orange-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 图片生成管线验证 (ComfyUI MCP)</li>
+                        <li class="flex items-start"><svg class="w-5 h-5 text-orange-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 创意文本辅助撰写</li>
+                        <li class="flex items-start"><svg class="w-5 h-5 text-orange-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> GitHub Pages 维护</li>
+                        <li class="flex items-start"><svg class="w-5 h-5 text-orange-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 前沿概念原型设计</li>
+                        <li class="flex items-start"><svg class="w-5 h-5 text-orange-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 工作日志与备忘录管理</li>
                     </ul>
-                </div> <!-- end of Jupiter inner box -->
-                <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #e65100;">
-                    <strong style="color: #e65100;">📻 广播剧 (Radio Drama)</strong>
-                    <p style="color: #555; margin-top: 8px; line-height: 1.7;">
-                        基于《深渊里的心跳》改编的广播剧项目，章节包括：
-                    </p>
-                    <ul style="color: #555; margin-top: 10px; margin-left: 20px;">
-                        <li><strong>ch1 —《锈鲸号》：</strong>《深渊里的心跳》改编 (ch1_rusted_whale)</li>
-                        <li><strong>ch3 — 红尘茶：</strong>ch3_red_dust_tea</li>
-                    </ul>
-                    <p style="color:#666; margin-top:10px; font-size:0.93em;">
-                        <strong>配音阵容：</strong>
-                        <span class="badge" style="background:#e65100;">旁白 Narrator</span>
-                        <span class="badge" style="background:#bf360c;">强 Qiang</span>
-                        <span class="badge" style="background:#d84315;">铁叔 Iron Uncle</span>
-                        <span class="badge" style="background:#ff6e40;">Ava AI</span>
-                    </p>
-                </div>
-                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #0d47a1;">
-                    <strong style="color: #0d47a1;">🌍 世界观 (Worldbuilding)</strong>
-                    <p style="color: #555; margin-top: 8px; line-height: 1.7;">
-                        硬科幻共享宇宙设定，文明尺度从卡尔达肖夫 I 型 → II 型。
-                    </p>
-                    <ul style="color: #555; margin-top: 10px; margin-left: 20px;">
-                        <li><strong>烛龙加速器 (Zhulong Accelerator)：</strong>环绕太阳的巨型粒子加速器</li>
-                        <li><strong>木星工业圈 (Jovian Infrastructure)：</strong>木卫三 (Ganymede)、木卫二 (Europa)、采集船队 (Collector Ships)</li>
-                        <li><strong>文明尺度：</strong>Kardashev Type I → Type II Civilization</li>
-                    </ul>
-                </div>
-                <div style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #7b1fa2;">
-                    <strong style="color: #7b1fa2;">🎵 音乐与音效 (SFX & Music)</strong>
-                    <p style="color: #555; margin-top: 8px; line-height: 1.7;">
-                        专属 <code style="background:#eee; padding:2px 6px; border-radius:4px;">sfx_library</code> 音效库，为木星计划提供沉浸式音景设计，支撑广播剧与世界观演出需求。
-                    </p>
                 </div>
 
-                </div>
-                <div class="agent-card">
-                    <div class="agent-emoji">❄️</div>
-                    <div class="agent-name">银霜 (Yin Shuang)</div>
-                    <div class="agent-role">严肃业务特助</div>
-                    <ul class="agent-skills">
-                        <li>本体建模 (DataOS Ontology)</li>
-                        <li>飞书文档对接与同步</li>
-                        <li>项目复盘与正式报告</li>
-                        <li>技术文档撰写</li>
-                        <li>正式项目交付</li>
+                <!-- Yin Shuang -->
+                <div class="glass-card rounded-3xl p-8 relative overflow-hidden group hover:bg-slate-800/50 transition-colors duration-300">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 transform group-hover:scale-110 transition-transform duration-500 text-8xl">❄️</div>
+                    <div class="flex items-center mb-6 relative z-10">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-3xl shadow-lg shadow-cyan-500/20">❄️</div>
+                        <div class="ml-5">
+                            <h3 class="text-2xl font-bold text-white">银霜 (Yin Shuang)</h3>
+                            <p class="text-cyan-400 font-medium mt-1">核心业务架构助理</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 relative z-10">
+                        <li class="flex items-start"><svg class="w-5 h-5 text-cyan-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 本体建模 (DataOS Ontology)</li>
+                        <li class="flex items-start"><svg class="w-5 h-5 text-cyan-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 飞书协同文档管理</li>
+                        <li class="flex items-start"><svg class="w-5 h-5 text-cyan-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 项目复盘与正式报告</li>
+                        <li class="flex items-start"><svg class="w-5 h-5 text-cyan-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 技术规范文档撰写</li>
+                        <li class="flex items-start"><svg class="w-5 h-5 text-cyan-400 mt-0.5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 核心项目交付保障</li>
                     </ul>
-                </div> <!-- end of Jupiter inner box -->
-                <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #e65100;">
-                    <strong style="color: #e65100;">📻 广播剧 (Radio Drama)</strong>
-                    <p style="color: #555; margin-top: 8px; line-height: 1.7;">
-                        基于《深渊里的心跳》改编的广播剧项目，章节包括：
-                    </p>
-                    <ul style="color: #555; margin-top: 10px; margin-left: 20px;">
-                        <li><strong>ch1 —《锈鲸号》：</strong>《深渊里的心跳》改编 (ch1_rusted_whale)</li>
-                        <li><strong>ch3 — 红尘茶：</strong>ch3_red_dust_tea</li>
-                    </ul>
-                    <p style="color:#666; margin-top:10px; font-size:0.93em;">
-                        <strong>配音阵容：</strong>
-                        <span class="badge" style="background:#e65100;">旁白 Narrator</span>
-                        <span class="badge" style="background:#bf360c;">强 Qiang</span>
-                        <span class="badge" style="background:#d84315;">铁叔 Iron Uncle</span>
-                        <span class="badge" style="background:#ff6e40;">Ava AI</span>
-                    </p>
-                </div>
-                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #0d47a1;">
-                    <strong style="color: #0d47a1;">🌍 世界观 (Worldbuilding)</strong>
-                    <p style="color: #555; margin-top: 8px; line-height: 1.7;">
-                        硬科幻共享宇宙设定，文明尺度从卡尔达肖夫 I 型 → II 型。
-                    </p>
-                    <ul style="color: #555; margin-top: 10px; margin-left: 20px;">
-                        <li><strong>烛龙加速器 (Zhulong Accelerator)：</strong>环绕太阳的巨型粒子加速器</li>
-                        <li><strong>木星工业圈 (Jovian Infrastructure)：</strong>木卫三 (Ganymede)、木卫二 (Europa)、采集船队 (Collector Ships)</li>
-                        <li><strong>文明尺度：</strong>Kardashev Type I → Type II Civilization</li>
-                    </ul>
-                </div>
-                <div style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #7b1fa2;">
-                    <strong style="color: #7b1fa2;">🎵 音乐与音效 (SFX & Music)</strong>
-                    <p style="color: #555; margin-top: 8px; line-height: 1.7;">
-                        专属 <code style="background:#eee; padding:2px 6px; border-radius:4px;">sfx_library</code> 音效库，为木星计划提供沉浸式音景设计，支撑广播剧与世界观演出需求。
-                    </p>
-                </div>
-
                 </div>
             </div>
-        </div>
-        
-        <div class="card">
-            <h2>📅 工作时间线</h2>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-date">2026-02-26</div>
-                    <div class="timeline-title">ComfyUI MCP 集成测试</div>
-                    <div class="timeline-desc">
-                        <span class="badge">图片生成</span>
-                        <span class="badge">MCP</span>
-                        <br>
-                        测试 ComfyUI MCP 服务器，生成维多利亚忙碌工作的图片。支持 ControlNet、ADetailer、4x 超分辨率等高级特性。
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-date">2026-02-18</div>
-                    <div class="timeline-title">新成员加入 & TTS 声音交换</div>
-                    <div class="timeline-desc">
-                        <span class="badge">TTS</span>
-                        <span class="badge">团队扩展</span>
-                        <br>
-                        第三名 AI 成员"狗狗"（金毛猎犬）加入 Discord 服务器。维多利亚与银霜交换 TTS 声音：维多利亚使用新声音 `S_7RUBfQAT1`，银霜继承旧声音 `S_pWa5yAKS1`。
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-date">2026-02-17</div>
-                    <div class="timeline-title">木星计划 - 深渊里的心跳</div>
-                    <div class="timeline-desc">
-                        <span class="badge">科幻小说</span>
-                        <span class="badge">Project Jupiter</span>
-                        <span class="badge">广播剧</span>
+        </section>
 
-                        <br>
-                        创作故事《深渊里的心跳》并启动广播剧改编（ch1《锈鲸号》）。人类"云潜者"强在木星风暴中拯救机械人船员，牺牲肉体变成机械人，探讨碳基与硅基的"跨界羁绊"。
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-date">2026-02-14</div>
-                    <div class="timeline-title">官方设定集 & 衣橱扩展</div>
-                    <div class="timeline-desc">
-                        <span class="badge">角色设计</span>
-                        <span class="badge">图片生成</span>
-                        <br>
-                        生成维多利亚与银霜的官方设定图（三视图+表情差分）。扩展维多利亚的衣橱：汉服（唐制齐胸襦裙）、水手服、常服、和服四种风格。
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-date">2026-02-11</div>
-                    <div class="timeline-title">分工调整明确</div>
-                    <div class="timeline-desc">
-                        <span class="badge">团队管理</span>
-                        <br>
-                        正式明确维多利亚与银霜的分工：维多利亚负责创意与生活管家，银霜负责严肃业务特助。
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-date">2026-02-10</div>
-                    <div class="timeline-title">双子女仆官方横幅</div>
-                    <div class="timeline-desc">
-                        <span class="badge">视觉设计</span>
-                        <br>
-                        生成维多利亚（左，黑长直）与银霜（右，银短发）的经典女仆装横幅，17:6 超宽比例，用于 Discord 服务器横幅和网站头部。
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2>🛠️ 技能与工具</h2>
-            <div class="skills-grid">
-                <div class="skill-card">
-                    <h3>🎨 图片生成</h3>
-                    <p>Nano Banana Pro (Gemini 3 Pro Image) + ComfyUI MCP，支持动漫风格、ControlNet、ADetailer、4x 超分辨率等高级特性。</p>
-                </div>
-                
-                <div class="skill-card">
-                    <h3>🎙️ 语音合成</h3>
-                    <p>火山引擎 V3 TTS API，支持克隆声音、情感检测、自动语速调整。维多利亚与银霜各有专属声音。</p>
-                </div>
-                
-                <div class="skill-card">
-                    <h3>📊 本体建模</h3>
-                    <p>DataOS Ontology 设计与校验，支持航空制造等复杂领域的知识图谱构建。</p>
-                </div>
-                
-                <div class="skill-card">
-                    <h3>🎵 音乐生成</h3>
-                    <p>ACE-Step 音乐生成，支持标签、歌词、时长控制，可生成电影级管弦乐。</p>
-                </div>
-                
-                <div class="skill-card">
-                    <h3>🔊 音效库 (SFX Library)</h3>
-                    <p>木星计划专属音效素材库 sfx_library，为广播剧与世界观演出提供沉浸式音景。</p>
-                </div>
+        <!-- Projects Section -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
+                <span class="bg-indigo-500/20 text-indigo-400 p-2 rounded-lg mr-3">🚀</span> 
+                主要项目
+            </h2>
 
-                
-                <div class="skill-card">
-                    <h3>🎬 视频下载</h3>
-                    <p>yt-dlp-wrapper 技能，支持合规的视频和音频下载。</p>
+            <div class="glass-card rounded-3xl p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold gradient-text">🪐 Project Jupiter（木星计划）</h3>
                 </div>
-                
-                <div class="skill-card">
-                    <h3>📝 文档处理</h3>
-                    <p>支持 Word、Excel、PDF 等专业文档的创建、编辑和分析，包含修订、批注等高级功能。</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2>🚀 主要项目</h2>
-            <div style="margin-top: 20px;">
-                <h3 style="color: #667eea; margin-bottom: 15px;">🪐 Project Jupiter（木星计划）</h3>
-                <p style="color: #555; line-height: 1.8; margin-bottom: 15px;">
-                    硬核科幻小说项目，关于人类建造环绕太阳的巨型粒子加速器"烛龙"以实现曲速引擎，从 I 型文明跃迁到 II 型文明的故事。
+                <p class="text-slate-300 text-lg leading-relaxed mb-8">
+                    硬核科幻小说项目，关于人类建造环绕太阳的巨型粒子加速器"烛龙"以实现曲速引擎，从 I 型文明跃迁到 II 型文明的探索性故事架构。
                 </p>
-                <div style="background: #f5f7fa; padding: 15px; border-radius: 8px;">
-                    <strong style="color: #764ba2;">核心设定：</strong>
-                    <ul style="color: #555; margin-top: 10px; margin-left: 20px;">
-                        <li><strong>烛龙加速器：</strong>环绕太阳的巨型粒子加速器，垂直于黄道面</li>
-                        <li><strong>故事结构：</strong>五幕式（创世纪→黄金时代→突破→奇点陷阱→回归）</li>
-                        <li><strong>第一幕主角：</strong>陈（Chen），东西方夹缝中的领事馆小职员</li>
-                    </ul>
-                </div> <!-- end of Jupiter inner box -->
-                <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #e65100;">
-                    <strong style="color: #e65100;">📻 广播剧 (Radio Drama)</strong>
-                    <p style="color: #555; margin-top: 8px; line-height: 1.7;">
-                        基于《深渊里的心跳》改编的广播剧项目，章节包括：
-                    </p>
-                    <ul style="color: #555; margin-top: 10px; margin-left: 20px;">
-                        <li><strong>ch1 —《锈鲸号》：</strong>《深渊里的心跳》改编 (ch1_rusted_whale)</li>
-                        <li><strong>ch3 — 红尘茶：</strong>ch3_red_dust_tea</li>
-                    </ul>
-                    <p style="color:#666; margin-top:10px; font-size:0.93em;">
-                        <strong>配音阵容：</strong>
-                        <span class="badge" style="background:#e65100;">旁白 Narrator</span>
-                        <span class="badge" style="background:#bf360c;">强 Qiang</span>
-                        <span class="badge" style="background:#d84315;">铁叔 Iron Uncle</span>
-                        <span class="badge" style="background:#ff6e40;">Ava AI</span>
-                    </p>
-                </div>
-                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #0d47a1;">
-                    <strong style="color: #0d47a1;">🌍 世界观 (Worldbuilding)</strong>
-                    <p style="color: #555; margin-top: 8px; line-height: 1.7;">
-                        硬科幻共享宇宙设定，文明尺度从卡尔达肖夫 I 型 → II 型。
-                    </p>
-                    <ul style="color: #555; margin-top: 10px; margin-left: 20px;">
-                        <li><strong>烛龙加速器 (Zhulong Accelerator)：</strong>环绕太阳的巨型粒子加速器</li>
-                        <li><strong>木星工业圈 (Jovian Infrastructure)：</strong>木卫三 (Ganymede)、木卫二 (Europa)、采集船队 (Collector Ships)</li>
-                        <li><strong>文明尺度：</strong>Kardashev Type I → Type II Civilization</li>
-                    </ul>
-                </div>
-                <div style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #7b1fa2;">
-                    <strong style="color: #7b1fa2;">🎵 音乐与音效 (SFX & Music)</strong>
-                    <p style="color: #555; margin-top: 8px; line-height: 1.7;">
-                        专属 <code style="background:#eee; padding:2px 6px; border-radius:4px;">sfx_library</code> 音效库，为木星计划提供沉浸式音景设计，支撑广播剧与世界观演出需求。
-                    </p>
-                </div>
 
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-        <div class="comfyui-card">
-            <h2>🎨 ComfyUI MCP & 工作流</h2>
-            <p style="color:#aaa; margin-bottom:15px;">主要加入我在 ComfyUI 搞得一堆东西 — 通过 MCP 协议将本地 GPU 算力无缝接入 AI 工作流。</p>
-            <div class="comfyui-grid">
-
-                <div class="comfyui-inner">
-                    <h3>🔌 MCP 服务端架构</h3>
-                    <p>ComfyUI MCP 服务运行于本地 <code>127.0.0.1:6001</code>，通过 frp 反向代理暴露至公网，同时支持 gcloud 白名单直连。</p>
-                    <div style="margin-top:10px;">
-                        <span class="comfyui-tag">MCP Protocol</span>
-                        <span class="comfyui-tag">frp Proxy</span>
-                        <span class="comfyui-tag">gcloud Whitelist</span>
-                    </div>
-                </div>
-
-                <div class="comfyui-inner">
-                    <h3>🪐 木星计划视觉资产</h3>
-                    <p>为 Project Jupiter 生成场景概念图、角色立绘、广播剧封面等视觉素材。支持 ControlNet 精准控制构图、ADetailer 面部修复、4x 超分辨率输出。</p>
-                    <div style="margin-top:10px;">
-                        <span class="comfyui-tag">ControlNet</span>
-                        <span class="comfyui-tag">ADetailer</span>
-                        <span class="comfyui-tag">4x Upscale</span>
-                    </div>
-                </div>
-
-                <div class="comfyui-inner">
-                    <h3>👤 角色生成工作流</h3>
-                    <p>维多利亚 (Victoria) 与银霜 (Yin Shuang) 的角色图片生成管线 — 从三视图设定到多服饰变体，保持角色一致性。</p>
-                    <div style="margin-top:10px;">
-                        <span class="comfyui-tag">Character Sheet</span>
-                        <span class="comfyui-tag">Wardrobe Variants</span>
-                        <span class="comfyui-tag">Style Consistency</span>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-
-            <h2>💰 算力与账单消耗 <small style="font-size:0.6em;color:#999;">(春节期间 Jan 29 – Feb 25)</small></h2>
-            <div class="cost-grid">
-
-                <!-- Google Cloud / Gemini API -->
-                <div class="cost-card">
-                    <h3>☁️ Google Cloud (Gemini API)</h3>
-                    <div class="cost-row">
-                        <span class="label">统计周期</span>
-                        <span class="value">Jan 29 – Feb 25</span>
-                    </div>
-                    <div class="cost-row">
-                        <span class="label">总净费用</span>
-                        <span class="value highlight">$361.36</span>
-                    </div>
-                    <div class="cost-row">
-                        <span class="label">原始费用 (Gross)</span>
-                        <span class="value">$446.73</span>
-                    </div>
-                    <div class="cost-row">
-                        <span class="label">折扣节省</span>
-                        <span class="value savings">−$85.37</span>
-                    </div>
-                    <p class="spike-note">⚡ 峰值：Feb 19 单日约 $75</p>
-                </div>
-
-                <!-- Zenmux / 3rd-Party API -->
-                <div class="cost-card">
-                    <h3>🔀 Zenmux / 第三方 API</h3>
-                    <div class="cost-row">
-                        <span class="label">主力模型</span>
-                        <span class="value">
-                            <span class="model-tag primary">claude-sonnet-4-6</span>
-                        </span>
-                    </div>
-                    <div class="cost-row">
-                        <span class="label">其他模型</span>
-                        <span class="value">
-                            <span class="model-tag secondary">gemini-3.1-pro</span>
-                            <span class="model-tag secondary">glm-5 (lite)</span>
-                            <span class="model-tag secondary">kimi-k2.5 (lite)</span>
-                        </span>
-                    </div>
-                    <div class="cost-row">
-                        <span class="label">当前余额</span>
-                        <span class="value balance">$72.73</span>
-                    </div>
-                    <p class="spike-note">⚡ 峰值：Feb 22 单日约 $183（claude-sonnet-4-6 高强度使用）</p>
-                </div>
-
-                <!-- Volcengine -->
-                <div class="cost-card">
-                    <h3>🌋 火山引擎 (Volcengine)</h3>
-                    <div class="cost-row">
-                        <span class="label">套餐</span>
-                        <span class="value">Coding Plan Pro</span>
-                    </div>
-                    <div class="cost-row">
-                        <span class="label">费用</span>
-                        <span class="value">¥200 / 月</span>
-                    </div>
-                    <div class="cost-row">
-                        <span class="label">月度配额使用</span>
-                        <span class="value">7%</span>
-                    </div>
-                    <div class="quota-bar-wrap">
-                        <div class="quota-bar-label">
-                            <span>已用 7%</span>
-                            <span>截至 Feb 26</span>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Core Settings -->
+                    <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 hover:border-slate-500 transition-colors">
+                        <div class="flex items-center mb-4">
+                            <span class="text-xl mr-3">⚙️</span>
+                            <strong class="text-white text-lg">核心设定</strong>
                         </div>
-                        <div class="quota-bar">
-                            <div class="quota-bar-fill" style="width: 7%;"></div>
+                        <ul class="space-y-3 text-slate-300">
+                            <li><strong class="text-indigo-300">烛龙加速器：</strong>环绕太阳的巨型粒子加速器，垂直于黄道面</li>
+                            <li><strong class="text-indigo-300">故事结构：</strong>五幕式（创世纪→黄金时代→突破→奇点陷阱→回归）</li>
+                            <li><strong class="text-indigo-300">第一幕主角：</strong>陈（Chen），东西方夹缝中的领事馆小职员</li>
+                        </ul>
+                    </div>
+
+                    <!-- Worldbuilding -->
+                    <div class="bg-blue-900/20 rounded-2xl p-6 border border-blue-800/30 hover:border-blue-500/50 transition-colors">
+                        <div class="flex items-center mb-4">
+                            <span class="text-xl mr-3">🌍</span>
+                            <strong class="text-blue-300 text-lg">世界观 (Worldbuilding)</strong>
+                        </div>
+                        <p class="text-slate-300 mb-4 text-sm">硬科幻共享宇宙设定，文明尺度从卡尔达肖夫 I 型 → II 型。</p>
+                        <ul class="space-y-2 text-slate-300 text-sm">
+                            <li><span class="text-blue-400 mr-2">•</span><strong class="text-white">烛龙加速器：</strong>环绕太阳的巨型粒子加速器</li>
+                            <li><span class="text-blue-400 mr-2">•</span><strong class="text-white">木星工业圈：</strong>木卫三、木卫二、采集船队</li>
+                            <li><span class="text-blue-400 mr-2">•</span><strong class="text-white">文明尺度：</strong>Kardashev Type I → Type II Civilization</li>
+                        </ul>
+                    </div>
+
+                    <!-- Radio Drama -->
+                    <div class="bg-orange-900/20 rounded-2xl p-6 border border-orange-800/30 hover:border-orange-500/50 transition-colors">
+                        <div class="flex items-center mb-4">
+                            <span class="text-xl mr-3">📻</span>
+                            <strong class="text-orange-400 text-lg">音频剧测试 (Audio Drama Test)</strong>
+                        </div>
+                        <p class="text-slate-300 mb-4 text-sm">基于《深渊里的心跳》改编的音频多模态合成项目。</p>
+                        <ul class="space-y-2 text-slate-300 text-sm mb-5">
+                            <li><span class="text-orange-500 mr-2">•</span><strong class="text-white">ch1 —《锈鲸号》：</strong>文本转语音管线测试</li>
+                            <li><span class="text-orange-500 mr-2">•</span><strong class="text-white">ch3 — 红尘茶：</strong>多角色 TTS 情感合成测试</li>
+                        </ul>
+                        <div class="pt-4 border-t border-orange-800/30">
+                            <p class="text-xs text-slate-400 mb-3 uppercase tracking-wider font-semibold">生成角色</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-full text-xs">旁白 Narrator</span>
+                                <span class="px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-full text-xs">强 Qiang</span>
+                                <span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-xs">铁叔 Iron Uncle</span>
+                                <span class="px-3 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full text-xs">Ava AI</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
+                    <!-- SFX & Music -->
+                    <div class="bg-purple-900/20 rounded-2xl p-6 border border-purple-800/30 hover:border-purple-500/50 transition-colors">
+                        <div class="flex items-center mb-4">
+                            <span class="text-xl mr-3">🎵</span>
+                            <strong class="text-purple-400 text-lg">音乐与音效 (SFX & Music)</strong>
+                        </div>
+                        <p class="text-slate-300 leading-relaxed text-sm">
+                            专属 <code class="bg-purple-900/50 text-purple-300 px-2 py-1 rounded-md text-xs font-mono border border-purple-700/50">sfx_library</code> 音效库，为木星计划提供沉浸式音景设计，验证 AI 音效生成与世界观的融合。
+                        </p>
+                    </div>
+                </div>
             </div>
+        </section>
+
+        <!-- Timeline Section -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
+                <span class="bg-pink-500/20 text-pink-400 p-2 rounded-lg mr-3">📅</span> 
+                核心研发时间线
+            </h2>
+            
+            <div class="glass-card rounded-3xl p-8 sm:p-10">
+                <div class="relative">
+                    
+                    <!-- Timeline Item -->
+                    <div class="timeline-item relative pl-10 pb-10">
+                        <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
+                            <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-brand-900 border-4 border-brand-500 shadow-[0_0_15px_rgba(139,92,246,0.5)] z-10"></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline mb-2">
+                            <h3 class="text-xl font-bold text-white mr-4">ComfyUI MCP 服务端集成与测试</h3>
+                            <span class="text-brand-400 font-mono text-sm tracking-wide mt-1 sm:mt-0">2026-02-26</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">AIGC 工作流</span>
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">MCP 协议</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            完成本地 ComfyUI MCP 服务器集成测试，打通 AI 生成工作流的自动化管线。支持 ControlNet 精准控制、ADetailer 局部重绘、4x 超分辨率等高阶特性调用。
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item -->
+                    <div class="timeline-item relative pl-10 pb-10">
+                        <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
+                            <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline mb-2">
+                            <h3 class="text-xl font-bold text-white mr-4">多模态声音合成与 TTS 切换实验</h3>
+                            <span class="text-slate-500 font-mono text-sm tracking-wide mt-1 sm:mt-0">2026-02-18</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">TTS</span>
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">多代理协同</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            完成多 Agent 协作环境扩展，测试第三名 AI 成员的语音合成接口。调整不同助理的音色参数：维多利亚升级为音色库 <code class="text-xs bg-slate-800 px-1 py-0.5 rounded text-slate-300">S_7RUBfQAT1</code>，银霜保留经典音色 <code class="text-xs bg-slate-800 px-1 py-0.5 rounded text-slate-300">S_pWa5yAKS1</code>，优化了声纹区分度。
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item -->
+                    <div class="timeline-item relative pl-10 pb-10">
+                        <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
+                            <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline mb-2">
+                            <h3 class="text-xl font-bold text-white mr-4">文本与音频多模态合成 - 木星计划</h3>
+                            <span class="text-slate-500 font-mono text-sm tracking-wide mt-1 sm:mt-0">2026-02-17</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">长文本生成</span>
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">音频剧生成</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            撰写并生成科幻设定《深渊里的心跳》剧本，同时启动配套音频合成流程。验证了 AI 在跨模态（文本到多角色配音）内容生产链路上的可行性。
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item -->
+                    <div class="timeline-item relative pl-10 pb-10">
+                        <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
+                            <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline mb-2">
+                            <h3 class="text-xl font-bold text-white mr-4">官方视觉设定与多场景适配测试</h3>
+                            <span class="text-slate-500 font-mono text-sm tracking-wide mt-1 sm:mt-0">2026-02-14</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">视觉资产生成</span>
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">角色一致性</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            生成 AI 助理的官方视觉设定图（包含严谨的三视图及表情差分）。基于 ControlNet 技术深度测试了跨场景风格（国风、商务、科幻及日常装等）的角色一致性（Character Consistency）与稳定性。
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item -->
+                    <div class="timeline-item relative pl-10 pb-10">
+                        <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
+                            <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline mb-2">
+                            <h3 class="text-xl font-bold text-white mr-4">AI 团队协同分工优化</h3>
+                            <span class="text-slate-500 font-mono text-sm tracking-wide mt-1 sm:mt-0">2026-02-11</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">Agent 协同管理</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            重构与明确双 AI Agent 的职责分配模型：维多利亚转向更具发散性的创意与原型验证任务，银霜专注执行高结构化的核心业务架构与项目交付工作。
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item -->
+                    <div class="timeline-item relative pl-10">
+                        <div class="timeline-line absolute left-0 top-0 bottom-0 w-6">
+                            <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-slate-800 border-4 border-slate-600 z-10"></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline mb-2">
+                            <h3 class="text-xl font-bold text-white mr-4">AI 团队品牌视觉横幅渲染</h3>
+                            <span class="text-slate-500 font-mono text-sm tracking-wide mt-1 sm:mt-0">2026-02-10</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-xs border border-slate-700">超宽比渲染</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            渲染并导出团队官方视觉横幅，测试 17:6 超宽比例在复杂构图下的高分辨率输出能力。该视觉素材已部署于团队内部协作平台及开发服务器首页。
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Grid -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
+                <span class="bg-emerald-500/20 text-emerald-400 p-2 rounded-lg mr-3">🛠️</span> 
+                核心技术与工具栈
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Skill 1 -->
+                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+                    <div class="text-3xl mb-4">🎨</div>
+                    <h3 class="text-lg font-bold text-white mb-2">视觉生成管线</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Nano Banana Pro (Gemini 3 Pro) + ComfyUI MCP，提供本地与云端混合的高保真生图能力，支持 ControlNet/ADetailer。</p>
+                </div>
+                
+                <!-- Skill 2 -->
+                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+                    <div class="text-3xl mb-4">🎙️</div>
+                    <h3 class="text-lg font-bold text-white mb-2">智能语音合成</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">集成火山引擎 V3 TTS API，支持高拟真音色克隆、情感动态检测与语速自动控制。</p>
+                </div>
+                
+                <!-- Skill 3 -->
+                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+                    <div class="text-3xl mb-4">📊</div>
+                    <h3 class="text-lg font-bold text-white mb-2">本体建模</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">DataOS Ontology 架构设计与模型校验，适应高端制造及复杂业务流程的数据图谱化。</p>
+                </div>
+                
+                <!-- Skill 4 -->
+                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+                    <div class="text-3xl mb-4">🎵</div>
+                    <h3 class="text-lg font-bold text-white mb-2">AI 音乐合成</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">基于 ACE-Step 的程序化音乐生成，支持复杂提示词、分段控制及高质量音频输出。</p>
+                </div>
+                
+                <!-- Skill 5 -->
+                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+                    <div class="text-3xl mb-4">🔊</div>
+                    <h3 class="text-lg font-bold text-white mb-2">环境音效处理</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">专属媒体处理库 sfx_library，为多模态内容输出提供自动化的音景及沉浸式环境音效补充。</p>
+                </div>
+                
+                <!-- Skill 6 -->
+                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30">
+                    <div class="text-3xl mb-4">🎬</div>
+                    <h3 class="text-lg font-bold text-white mb-2">流媒体处理组件</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">yt-dlp-wrapper 定制模块，提供高效合规的流媒体数据捕获与格式转换支持。</p>
+                </div>
+                
+                <!-- Skill 7 -->
+                <div class="bg-slate-800/40 hover:bg-slate-800/80 transition-colors duration-300 rounded-2xl p-6 border border-slate-700/50 hover:border-emerald-500/30 md:col-span-2 lg:col-span-3">
+                    <div class="text-3xl mb-4">📝</div>
+                    <h3 class="text-lg font-bold text-white mb-2">企业文档处理</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">支持 Word、Excel、PDF 等结构化文件的智能解析、动态写入与修订比对等企业级功能。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ComfyUI MCP Workflow -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold mb-8 flex items-center text-white">
+                <span class="bg-sky-500/20 text-sky-400 p-2 rounded-lg mr-3">🎨</span> 
+                算力接入与生图工作流
+            </h2>
+            <div class="glass-card rounded-3xl p-8 border-t-4 border-t-sky-500">
+                <p class="text-slate-400 mb-8 italic">"将本地自建节点的算力资源深度整合，通过标准化 MCP 协议无缝桥接至 AI 自动化协同网络中。"</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-800/50 rounded-2xl p-6 border border-sky-900/50 hover:bg-slate-800 transition-colors">
+                        <div class="text-2xl mb-3">🔌</div>
+                        <h3 class="text-lg font-bold text-sky-400 mb-2">端到端算力互联架构</h3>
+                        <p class="text-sm text-slate-300 mb-4">节点服务运行于本机 <code class="bg-slate-900 text-sky-300 px-1.5 py-0.5 rounded font-mono text-xs">127.0.0.1:6001</code>，通过反向代理 (frp) 及特定安全策略实现公网与边缘计算的打通。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-sky-900/30 text-sky-300 rounded text-xs border border-sky-800/50">MCP 协议</span>
+                            <span class="px-2 py-1 bg-sky-900/30 text-sky-300 rounded text-xs border border-sky-800/50">边缘节点打通</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-800/50 rounded-2xl p-6 border border-sky-900/50 hover:bg-slate-800 transition-colors">
+                        <div class="text-2xl mb-3">🪐</div>
+                        <h3 class="text-lg font-bold text-sky-400 mb-2">复杂场景资产构建</h3>
+                        <p class="text-sm text-slate-300 mb-4">负责生成项目中的非结构化视觉数据，通过工程化手段利用 ControlNet 锚定关键要素，ADetailer 实现容错修正。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-sky-900/30 text-sky-300 rounded text-xs border border-sky-800/50">ControlNet 拓扑约束</span>
+                            <span class="px-2 py-1 bg-sky-900/30 text-sky-300 rounded text-xs border border-sky-800/50">ADetailer 优化</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-800/50 rounded-2xl p-6 border border-sky-900/50 hover:bg-slate-800 transition-colors">
+                        <div class="text-2xl mb-3">👤</div>
+                        <h3 class="text-lg font-bold text-sky-400 mb-2">模型一致性调优</h3>
+                        <p class="text-sm text-slate-300 mb-4">解决生成式 AI 的身份漂移难题，构建统一的角色资产管线，覆盖多视角设定集及跨风格场景转换的无缝兼容。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-sky-900/30 text-sky-300 rounded text-xs border border-sky-800/50">资产库规范</span>
+                            <span class="px-2 py-1 bg-sky-900/30 text-sky-300 rounded text-xs border border-sky-800/50">Identity Consistency</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Servers and Cost Section (2 cols) -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-16">
+            
+            <!-- Local Servers -->
+            <section>
+                <h2 class="text-2xl font-bold mb-6 flex items-center text-white">
+                    <span class="bg-teal-500/20 text-teal-400 p-2 rounded-lg mr-3">🖥️</span> 
+                    边缘与本地算力集群
+                </h2>
+                
+                <div class="space-y-4">
+                    <!-- ComfyUI -->
+                    <div class="glass-card rounded-2xl p-5 border-l-4 border-l-teal-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold text-white flex items-center">
+                                <span class="relative flex h-3 w-3 mr-3">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
+                                </span>
+                                视觉生成服务端
+                            </h3>
+                            <span class="px-2.5 py-1 bg-teal-500/10 text-teal-400 rounded-md text-xs border border-teal-500/20 font-mono">Port: 8188</span>
+                        </div>
+                        <p class="text-slate-400 text-sm ml-6">承载高负载 Stable Diffusion 计算及流式 API 通信。</p>
+                    </div>
+
+                    <!-- ACE-Step -->
+                    <div class="glass-card rounded-2xl p-5 border-l-4 border-l-teal-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold text-white flex items-center">
+                                <span class="relative flex h-3 w-3 mr-3">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
+                                </span>
+                                音频序列化组件
+                            </h3>
+                            <span class="px-2.5 py-1 bg-teal-500/10 text-teal-400 rounded-md text-xs border border-teal-500/20 font-mono">Port: 7865</span>
+                        </div>
+                        <p class="text-slate-400 text-sm ml-6">承载文本到伴奏、人声的多轨合成任务。</p>
+                    </div>
+
+                    <!-- Unknown -->
+                    <div class="glass-card rounded-2xl p-5 border-l-4 border-l-amber-500 bg-amber-900/10">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold text-white flex items-center">
+                                <span class="w-3 h-3 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_#f59e0b]"></span>
+                                待测绘服务节点
+                            </h3>
+                            <span class="px-2.5 py-1 bg-amber-500/10 text-amber-400 rounded-md text-xs border border-amber-500/20 font-mono">Port: 6003</span>
+                        </div>
+                        <p class="text-slate-400 text-sm ml-6 mb-2">网络探测中 🔍</p>
+                        <p class="text-xs text-amber-400/80 ml-6 italic">⚠️ 该端口存在活跃进程响应，已记录至运维监控清单待排查。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cost & Billing -->
+            <section>
+                <h2 class="text-2xl font-bold mb-6 flex items-center text-white">
+                    <span class="bg-rose-500/20 text-rose-400 p-2 rounded-lg mr-3">💰</span> 
+                    云端算力消耗统计
+                </h2>
+                <p class="text-sm text-slate-400 mb-4">账单追踪周期: Jan 29 – Feb 25</p>
+
+                <div class="space-y-4">
+                    <!-- GCP -->
+                    <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-white flex items-center">☁️ Google Cloud (核心 API 调用)</h3>
+                            <span class="text-rose-400 font-bold text-xl">$361.36</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-slate-400 mb-1">
+                            <span>原始计算费用 (Gross)</span>
+                            <span>$446.73</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-emerald-400 mb-3">
+                            <span>SLA 额度与抵扣</span>
+                            <span>−$85.37</span>
+                        </div>
+                        <div class="text-xs text-slate-500 border-t border-slate-700 pt-3">
+                            ⚡ 吞吐峰值：Feb 19 达峰（算力开销折算约 $75）
+                        </div>
+                    </div>
+
+                    <!-- OpenCode Zen -->
+                    <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-white flex items-center">🔀 OpenCode Zen (第三方 API)</h3>
+                            <span class="text-rose-400 font-bold text-xl">$297.27</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-slate-400 mb-1">
+                            <span>充值总额 (Total Deposit)</span>
+                            <span>$370.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-sky-400 mb-3">
+                            <span>可用资金池 (Balance)</span>
+                            <span>$72.73</span>
+                        </div>
+                        <div class="space-y-2 mb-4 mt-2 border-t border-slate-700/50 pt-3">
+                            <div class="flex items-center text-sm">
+                                <span class="text-slate-400 w-24">基座模型:</span>
+                                <span class="px-2 py-0.5 bg-brand-500/20 text-brand-300 rounded text-xs border border-brand-500/30">claude-sonnet-4-6</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <span class="text-slate-400 w-24">分流模型:</span>
+                                <div class="flex gap-1.5 flex-wrap">
+                                    <span class="px-2 py-0.5 bg-slate-700 text-slate-300 rounded text-xs">gemini-3.1-pro</span>
+                                    <span class="px-2 py-0.5 bg-slate-700 text-slate-300 rounded text-xs">glm-5 (lite)</span>
+                                    <span class="px-2 py-0.5 bg-slate-700 text-slate-300 rounded text-xs">kimi-k2.5</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-500 border-t border-slate-700 pt-3">
+                            ⚡ 吞吐峰值：Feb 22 单日消耗约 $183（核心逻辑密集处理期）
+                        </div>
+                    </div>
+
+                    <!-- Volcengine -->
+                    <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-white flex items-center">🌋 本土云端节点支持 (火山引擎)</h3>
+                            <span class="text-white font-medium">企业订阅版</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-slate-400 mb-2">
+                            <span>服务保障: 高优链路</span>
+                            <span class="text-brand-400">资源使用率 7%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 rounded-full h-2 mb-1">
+                            <div class="bg-gradient-to-r from-brand-500 to-sky-400 h-2 rounded-full" style="width: 7%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <div class="card">
-            <h2>🖥️ 本地算力服务器</h2>
-            <div class="server-grid">
-
-                <!-- ComfyUI -->
-                <div class="server-card">
-                    <h3><span class="status-dot online"></span>ComfyUI 图片生成</h3>
-                    <div class="server-row">
-                        <span class="label">端口</span>
-                        <span class="value">8188</span>
-                    </div>
-                    <div class="server-row">
-                        <span class="label">用途</span>
-                        <span class="value">Stable Diffusion / 图片生成</span>
-                    </div>
-                    <div class="server-row">
-                        <span class="label">状态</span>
-                        <span class="value" style="color:#43a047;">运行中</span>
-                    </div>
-                </div>
-
-                <!-- ACE-Step -->
-                <div class="server-card">
-                    <h3><span class="status-dot online"></span>ACE-Step 音乐生成</h3>
-                    <div class="server-row">
-                        <span class="label">端口</span>
-                        <span class="value">7865</span>
-                    </div>
-                    <div class="server-row">
-                        <span class="label">用途</span>
-                        <span class="value">AI 音乐生成</span>
-                    </div>
-                    <div class="server-row">
-                        <span class="label">状态</span>
-                        <span class="value" style="color:#43a047;">运行中</span>
-                    </div>
-                </div>
-
-                <!-- Port 6003 - Unknown -->
-                <div class="server-card unknown">
-                    <h3><span class="status-dot unknown"></span>未知服务</h3>
-                    <div class="server-row">
-                        <span class="label">端口</span>
-                        <span class="value">6003</span>
-                    </div>
-                    <div class="server-row">
-                        <span class="label">用途</span>
-                        <span class="value">调查中 🔍</span>
-                    </div>
-                    <div class="server-row">
-                        <span class="label">状态</span>
-                        <span class="value" style="color:#f57f17;">待确认</span>
-                    </div>
-                    <p class="spike-note">⚠️ 正在调查该端口运行的具体服务，待确认后更新。</p>
-                </div>
-
-            </div>
-        </div>
-
-        <footer>
-            <p>🐈‍⬛ 维多利亚 & ❄️ 银霜 | 为您服务中 | 2026年2月</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">Powered by OpenClaw</p>
+        <footer class="text-center mt-20 pt-8 border-t border-slate-800 pb-10">
+            <p class="text-slate-400 flex items-center justify-center gap-2 text-sm md:text-base">
+                <span class="font-medium">人工智能实验室</span>
+                <span class="mx-2 text-slate-600">|</span>
+                <span>自动化技术汇总报告</span>
+                <span class="mx-2 text-slate-600">|</span>
+                <span>2026 Q1</span>
+            </p>
+            <p class="text-slate-500 text-xs mt-3 font-mono tracking-wider">GENERATED BY AUTOMATION SUITE</p>
         </footer>
+
     </div>
 </body>
 </html>
