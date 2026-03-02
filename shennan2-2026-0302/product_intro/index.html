@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字孪生与本体建模 — 灵境元宇宙工厂操作系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ==============================================
+           Presentation Engine — Slide Mechanics
+           ============================================== */
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: var(--theme-bg-base);
+        }
+
+        /* 所有 slide 默认隐藏 */
+        .presentation-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none !important;
+            overflow-y: auto;
+        }
+
+        /* 只有 .active 的 slide 才显示 — !important 压过 .slide-closing 等 */
+        .presentation-slide.active {
+            display: flex !important;
+        }
+
+        /* Cover / Closing 居中布局 — 不再设 display，避免覆盖隐藏逻辑 */
+        .presentation-slide.slide-cover.active,
+        .presentation-slide.slide-closing.active {
+            align-items: center;
+            justify-content: center;
+        }
+        .slide-cover .slide-content,
+        .slide-closing .slide-content {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* ==============================================
+           Slide Content Layout
+           ============================================== */
+        .slide-content {
+            padding: 80px 60px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ==============================================
+           Section Headers（slide 2-10 的标题区）
+           ============================================== */
+        .website-section-header {
+            margin-bottom: var(--spacing-xl, 32px);
+            text-align: left;
+        }
+
+        /* ==============================================
+           Floating Shapes & Particles（背景装饰）
+           ============================================== */
+        .presentation-floating-shapes {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .presentation-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.07;
+            filter: blur(80px);
+        }
+        .presentation-shape-1 {
+            width: 600px; height: 600px;
+            background: var(--color-aero-blue, #0066CC);
+            top: -200px; right: -100px;
+            animation: shapeFloat1 20s ease-in-out infinite;
+        }
+        .presentation-shape-2 {
+            width: 500px; height: 500px;
+            background: var(--color-pulse-cyan, #0099AA);
+            bottom: -150px; left: -100px;
+            animation: shapeFloat2 25s ease-in-out infinite;
+        }
+        .presentation-shape-3 {
+            width: 400px; height: 400px;
+            background: var(--color-signal-green, #00A383);
+            top: 40%; left: 60%;
+            animation: shapeFloat3 18s ease-in-out infinite;
+        }
+        @keyframes shapeFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,30px)} }
+        @keyframes shapeFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
+        @keyframes shapeFloat3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-20px,-30px)} }
+
+        .presentation-particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .presentation-particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: var(--color-aero-blue, #0066CC);
+            opacity: 0.3;
+            animation: particleDrift 15s ease-in-out infinite;
+        }
+        @keyframes particleDrift { 0%,100%{transform:translateY(0);opacity:0.3} 50%{transform:translateY(-30px);opacity:0.6} }
+
+        /* ==============================================
+           Navigation Buttons（翻页按钮）
+           灵境设计风格：毛玻璃 + 圆角 + 品牌色
+           ============================================== */
+        .presentation-nav-buttons {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+        }
+        .presentation-nav-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-lg, 12px);
+            border: 1px solid rgba(0, 102, 204, 0.15);
+            background: var(--bg-glass, rgba(255,255,255,0.98));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            color: var(--color-aero-blue, #0066CC);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+        .presentation-nav-btn:hover:not(:disabled) {
+            background: var(--color-aero-blue, #0066CC);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(0, 102, 204, 0.25);
+            transform: translateY(-2px);
+            border-color: transparent;
+        }
+        .presentation-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .presentation-nav-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        [data-theme="dark"] .presentation-nav-btn {
+            background: rgba(15, 30, 60, 0.7);
+            border-color: rgba(0, 132, 255, 0.2);
+            color: rgba(0, 180, 255, 0.9);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+        [data-theme="dark"] .presentation-nav-btn:hover:not(:disabled) {
+            background: rgba(0, 132, 255, 0.35);
+            color: #fff;
+            border-color: rgba(0, 180, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 132, 255, 0.3);
+        }
+
+        /* ==============================================
+           Theme Toggle（主题切换按钮）
+           ============================================== */
+        .presentation-theme-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+        }
+        .presentation-theme-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-lg, 12px);
+            border: 1px solid rgba(0, 102, 204, 0.15);
+            background: var(--bg-glass, rgba(255,255,255,0.98));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.25s ease;
+        }
+        .presentation-theme-btn:hover {
+            box-shadow: 0 8px 24px rgba(0, 102, 204, 0.2);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="dark"] .presentation-theme-btn {
+            background: rgba(15, 30, 60, 0.7);
+            border-color: rgba(0, 132, 255, 0.2);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+        [data-theme="dark"] .presentation-theme-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 132, 255, 0.3);
+            border-color: rgba(0, 180, 255, 0.5);
+        }
+
+        /* ==============================================
+           Slide Indicators（底部页码指示器）
+           ============================================== */
+        .presentation-slide-indicators {
+            position: fixed;
+            bottom: 88px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .presentation-slide-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: none;
+            background: var(--neutral-300, #CBD5E1);
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+        .presentation-slide-indicator.active {
+            width: 28px;
+            border-radius: 4px;
+            background: var(--color-aero-blue, #0066CC);
+            box-shadow: 0 0 8px rgba(0, 102, 204, 0.4);
+        }
+        .presentation-slide-indicator:hover:not(.active) {
+            background: var(--neutral-400, #94A3B8);
+            transform: scale(1.3);
+        }
+
+        [data-theme="dark"] .presentation-slide-indicator {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        [data-theme="dark"] .presentation-slide-indicator.active {
+            background: rgba(0, 180, 255, 0.8);
+            box-shadow: 0 0 12px rgba(0, 132, 255, 0.5);
+        }
+        [data-theme="dark"] .presentation-slide-indicator:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ==============================================
+           Progress Bar（顶部进度条）
+           ============================================== */
+        .presentation-progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--color-aero-blue, #0066CC), var(--color-pulse-cyan, #0099AA), var(--color-signal-green, #00A383));
+            z-index: 1001;
+            transition: width 0.4s ease;
+            box-shadow: 0 0 8px rgba(0, 102, 204, 0.3);
+        }
+
+        /* ==============================================
+           Presentation Modal（如果 script.js 创建了弹窗）
+           ============================================== */
+        .presentation-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .presentation-modal.active {
+            display: flex;
+        }
+        .presentation-modal-content {
+            background: var(--bg-glass, #fff);
+            border: var(--glass-border, 1px solid rgba(0,0,0,0.1));
+            border-radius: var(--radius-xl, 16px);
+            padding: var(--spacing-xl, 32px);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+        }
+        .presentation-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,0,0,0.05);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ==============================================
+           Timeline Items（时间线：Slide 6, 9）
+           ============================================== */
+        .presentation-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            padding-left: 20px;
+            border-left: 2px solid rgba(0, 102, 204, 0.2);
+        }
+        .presentation-timeline-item {
+            padding: 12px 0 12px 20px;
+            position: relative;
+        }
+        .presentation-timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -27px;
+            top: 18px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--color-aero-blue, #0066CC);
+            border: 2px solid var(--bg-glass, #fff);
+            box-shadow: 0 0 6px rgba(0, 102, 204, 0.3);
+        }
+        .presentation-timeline-title {
+            font-size: var(--font-size-base, 1rem);
+            font-weight: 600;
+            color: var(--text-primary, #0F172A);
+            margin: 0 0 4px;
+        }
+        .presentation-timeline-desc {
+            font-size: var(--font-size-sm, 0.875rem);
+            color: var(--text-secondary, #475569);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        [data-theme="dark"] .presentation-timeline {
+            border-left-color: rgba(0, 132, 255, 0.25);
+        }
+        [data-theme="dark"] .presentation-timeline-item::before {
+            background: rgba(0, 180, 255, 0.8);
+            border-color: rgba(15, 30, 60, 0.8);
+            box-shadow: 0 0 10px rgba(0, 132, 255, 0.4);
+        }
+
+        /* ==============================================
+           Card Grid（卡片网格：Slide 7 事件场景）
+           ============================================== */
+        .presentation-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg, 24px);
+        }
+        .presentation-card-grid-item {
+            background: var(--bg-glass, rgba(255,255,255,0.98));
+            border: 1px solid rgba(0, 102, 204, 0.1);
+            border-radius: var(--radius-lg, 12px);
+            padding: var(--spacing-lg, 24px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .presentation-card-grid-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 102, 204, 0.12);
+            border-color: rgba(0, 102, 204, 0.25);
+        }
+
+        [data-theme="dark"] .presentation-card-grid-item {
+            background: rgba(15, 30, 60, 0.5);
+            border-color: rgba(0, 132, 255, 0.12);
+            box-shadow: none;
+        }
+        [data-theme="dark"] .presentation-card-grid-item:hover {
+            background: rgba(15, 30, 60, 0.65);
+            border-color: rgba(0, 132, 255, 0.35);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 30px rgba(0, 132, 255, 0.1);
+        }
+
+        /* ==============================================
+           Feature Content Wrapper
+           ============================================== */
+        .presentation-feature-content {
+            flex: 1;
+        }
+
+        /* ==============================================
+           Responsive：小屏幕适配
+           ============================================== */
+        @media (max-width: 1024px) {
+            .slide-content { padding: 60px 32px 40px; }
+            .presentation-card-grid { grid-template-columns: 1fr; }
+        }
+        /* ============================================== 
+           Media Elements
+           ============================================== */
+        .slide-media {
+            border-radius: var(--radius-lg, 12px);
+            overflow: hidden;
+            border: 1px solid rgba(0, 102, 204, 0.1);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
+        .slide-media img,
+        .slide-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .slide-video-wrap {
+            border-radius: var(--radius-lg, 12px);
+            overflow: hidden;
+            border: 1px solid rgba(0, 102, 204, 0.1);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+        .slide-video-wrap video {
+            width: 100%;
+            display: block;
+        }
+        [data-theme="dark"] .slide-media {
+            border-color: rgba(0, 132, 255, 0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+        [data-theme="dark"] .slide-video-wrap {
+            border-color: rgba(0, 132, 255, 0.2);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="presentation-particles" id="particles"></div>
+        <div class="presentation-floating-shapes">
+            <div class="presentation-shape presentation-shape-1"></div>
+            <div class="presentation-shape presentation-shape-2"></div>
+            <div class="presentation-shape presentation-shape-3"></div>
+        </div>
+
+        <!-- Slide 1: Cover (active + slide-cover) -->
+        <div class="presentation-slide slide-cover active" data-slide="1">
+            <div class="slide-content animate-fade-in">
+                <div class="card-glass" style="padding: 2.5rem; max-width: 900px; width: 100%; margin: 0 auto;">
+                    <h1 class="website-hero-title website-text-gradient">数字孪生与本体建模<br>赋能智能制造</h1>
+                    <p class="website-hero-description">灵境元宇宙工厂操作系统 · 产品介绍</p>
+                    <div class="website-hero-badge">
+                        <span class="flex-row items-center gap-md"><i data-lucide="calendar" class="icon-sm"></i> 2026年</span>
+                        <span class="flex-row items-center gap-md"><i data-lucide="rocket" class="icon-sm"></i> 灵境 · 智造未来</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: 数字孪生应用案例 -->
+        <div class="presentation-slide" data-slide="2">
+            <div class="slide-content animate-fade-in" style="padding: 30px 60px 20px;">
+                <div class="website-section-header" style="margin-bottom: 0.5rem;">
+                    <span class="website-section-badge"><i data-lucide="zap"></i> Digital Twin Use Cases</span>
+                    <h2 class="website-section-title" style="font-size: 1.4rem;">1. 数字孪生应用案例</h2>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px;">
+                    <div style="background: var(--bg-glass); border: 1px solid rgba(0, 102, 204, 0.1); border-radius: 8px; padding: 8px 10px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: rgba(0, 102, 204, 0.1); color: var(--color-aero-blue); flex-shrink: 0;"><i data-lucide="factory" style="width: 14px; height: 14px;"></i></div>
+                            <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0;">智慧工厂</h3>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">全产线可视化监控，设备状态实时感知</p>
+                    </div>
+                    <div style="background: var(--bg-glass); border: 1px solid rgba(0, 102, 204, 0.1); border-radius: 8px; padding: 8px 10px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: rgba(0, 102, 204, 0.1); color: var(--color-aero-blue); flex-shrink: 0;"><i data-lucide="Package" style="width: 14px; height: 14px;"></i></div>
+                            <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0;">智能仓储</h3>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">AGV调度优化，库位实时动态管理</p>
+                    </div>
+                    <div style="background: var(--bg-glass); border: 1px solid rgba(0, 102, 204, 0.1); border-radius: 8px; padding: 8px 10px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: rgba(0, 102, 204, 0.1); color: var(--color-aero-blue); flex-shrink: 0;"><i data-lucide="settings" style="width: 14px; height: 14px;"></i></div>
+                            <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0;">预测维护</h3>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">故障提前预警，降低非计划停机</p>
+                    </div>
+                    <div style="background: var(--bg-glass); border: 1px solid rgba(0, 102, 204, 0.1); border-radius: 8px; padding: 8px 10px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: rgba(0, 102, 204, 0.1); color: var(--color-aero-blue); flex-shrink: 0;"><i data-lucide="bar-chart-3" style="width: 14px; height: 14px;"></i></div>
+                            <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0;">能效优化</h3>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">能耗实时分析，节能降耗决策支持</p>
+                    </div>
+                </div>
+                
+                <div class="slide-media" style="height: 45vh; width: 100%; flex-shrink: 0;">
+                    <img src="assets/digital-twin-illustration.jpg" alt="数字孪生应用案例示意图" style="width:100%;height:100%;object-fit:contain; background: var(--bg-glass); border-radius: 8px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: 演示视频 -->
+        <div class="presentation-slide" data-slide="3">
+            <div class="slide-content animate-fade-in" style="padding: 60px;">
+                <video src="assets/os-demo.mp4" controls preload="metadata" style="width: 100%; height: 70vh; display: block;"></video>
+            </div>
+        </div>
+
+        <!-- Slide 4: 解决方案架构 -->
+        <div class="presentation-slide" data-slide="4">
+            <div class="slide-content animate-fade-in" style="padding: 40px 60px 20px;">
+                <div class="website-section-header" style="margin-bottom: 0.25rem;">
+                    <span class="website-section-badge"><i data-lucide="zap"></i> Metaverse Factory Operating System</span>
+                    <h2 class="website-section-title">3. 灵境元宇宙工厂操作系统</h2>
+                </div>
+                <div class="grid-cols-2" style="gap: 8px; flex: 1; align-items: center;">
+                    <div class="grid-cols-2" style="gap: 4px;">
+                        <div class="feature-card" style="padding: 6px 8px !important;">
+                            <div class="feature-icon"><i data-lucide="database"></i></div>
+                            <div class="flex-column" style="gap: 2px;">
+                                <h3 class="feature-title">灵枢 (LingShu)</h3>
+                                <p class="feature-description">语义数据底座：数据接入、本体建模</p>
+                            </div>
+                        </div>
+                        <div class="feature-card" style="padding: 6px 8px !important;">
+                            <div class="feature-icon"><i data-lucide="box"></i></div>
+                            <div class="flex-column" style="gap: 2px;">
+                                <h3 class="feature-title">灵境 (LingJing)</h3>
+                                <p class="feature-description">三维空间底座：场景构建与实时渲染</p>
+                            </div>
+                        </div>
+                        <div class="feature-card" style="padding: 6px 8px !important;">
+                            <div class="feature-icon"><i data-lucide="cpu"></i></div>
+                            <div class="flex-column" style="gap: 2px;">
+                                <h3 class="feature-title">灵伴 (LingBan)</h3>
+                                <p class="feature-description">AI协同中枢：意图理解与任务编排</p>
+                            </div>
+                        </div>
+                        <div class="feature-card" style="padding: 6px 8px !important;">
+                            <div class="feature-icon"><i data-lucide="layout-grid"></i></div>
+                            <div class="flex-column" style="gap: 2px;">
+                                <h3 class="feature-title">轻应用 (Light Apps)</h3>
+                                <p class="feature-description">敏捷业务单元，MCP标准化接入</p>
+                            </div>
+                        </div>
+                        <div class="card-glass" style="grid-column: span 2; text-align: center; padding: 0.4rem 0.6rem;">
+                            <p style="font-weight: 600; color: var(--primary-color); margin: 0 0 0.2rem; font-size: 0.9rem;">感知 → 认知 → 决策 → 执行</p>
+                            <div class="flex-row justify-center gap-sm" style="flex-wrap: wrap;">
+                                <span class="badge animate-breathe">数据真值</span>
+                                <span class="badge animate-breathe">空间镜像</span>
+                                <span class="badge animate-breathe">AI编排</span>
+                                <span class="badge animate-breathe">业务执行</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slide-video-wrap">
+                        <video src="assets/os-demo.mp4" poster="assets/slide-04-poster.jpg" controls preload="metadata" style="width:100%;display:block;max-height:240px;"></video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: 核心能力：本体建模 -->
+        <div class="presentation-slide" data-slide="5">
+            <div class="slide-content animate-fade-in" style="padding: 30px 60px 20px;">
+                <div class="website-section-header" style="margin-bottom: 0.25rem;">
+                    <span class="website-section-badge"><i data-lucide="zap"></i> Ontology Modeling — The Semantic Foundation</span>
+                    <h2 class="website-section-title">4. 核心能力：本体建模</h2>
+                </div>
+                
+                <!-- 中间大图 -->
+                <div class="slide-media" style="height: 40vh; width: 100%; margin-bottom: 12px; flex-shrink: 0;">
+                    <img src="assets/slide-05-ontology.jpg" alt="本体数据建模平台节点图谱" style="width:100%;height:100%;object-fit:contain; background: var(--bg-glass); border-radius: 8px;">
+                </div>
+                
+                <!-- 对象-关系-状态-事件 四个卡片 -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px;">
+                    <div style="background: var(--bg-glass); border: 1px solid rgba(0, 102, 204, 0.1); border-radius: 8px; padding: 8px 10px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: rgba(0, 102, 204, 0.1); color: var(--color-aero-blue); flex-shrink: 0;"><i data-lucide="layers" style="width: 14px; height: 14px;"></i></div>
+                            <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0;">对象 (Object)</h3>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">设备、工位、产线等实体建模</p>
+                    </div>
+                    <div style="background: var(--bg-glass); border: 1px solid rgba(0, 102, 204, 0.1); border-radius: 8px; padding: 8px 10px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: rgba(0, 102, 204, 0.1); color: var(--color-aero-blue); flex-shrink: 0;"><i data-lucide="git-branch" style="width: 14px; height: 14px;"></i></div>
+                            <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0;">关系 (Relation)</h3>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">包含、连接、空间隶属</p>
+                    </div>
+                    <div style="background: var(--bg-glass); border: 1px solid rgba(0, 102, 204, 0.1); border-radius: 8px; padding: 8px 10px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: rgba(0, 102, 204, 0.1); color: var(--color-aero-blue); flex-shrink: 0;"><i data-lucide="activity" style="width: 14px; height: 14px;"></i></div>
+                            <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0;">状态 (State)</h3>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">状态机驱动生命周期</p>
+                    </div>
+                    <div style="background: var(--bg-glass); border: 1px solid rgba(0, 102, 204, 0.1); border-radius: 8px; padding: 8px 10px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: rgba(0, 102, 204, 0.1); color: var(--color-aero-blue); flex-shrink: 0;"><i data-lucide="zap" style="width: 14px; height: 14px;"></i></div>
+                            <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0;">事件 (Event)</h3>
+                        </div>
+                        <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">状态变化触发联动</p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 12px;">
+                    <a href="http://116.198.253.92:8888/build/index.html#/" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: var(--color-aero-blue); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem;">
+                        <i data-lucide="external-link" style="width: 18px; height: 18px;"></i>
+                        访问本体建模平台
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: 核心能力：数字孪生 -->
+        <div class="presentation-slide" data-slide="6">
+            <div class="slide-content animate-fade-in" style="padding: 40px 60px 20px;">
+                <div class="website-section-header" style="margin-bottom: 0.25rem;">
+                    <span class="website-section-badge"><i data-lucide="zap"></i> Digital Twin — The Physical-Digital Bridge</span>
+                    <h2 class="website-section-title">5. 核心能力：全要素数字孪生</h2>
+                </div>
+                <div class="grid-cols-2" style="gap: 8px; flex: 1; align-items: center;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                            <div class="feature-card" style="padding: 6px 8px !important;">
+                                <div class="feature-icon"><i data-lucide="globe"></i></div>
+                                <div class="flex-column" style="gap: 2px;">
+                                    <h4 class="feature-title">全息性</h4>
+                                    <p class="feature-description">覆盖"人、机、料、法、环、测"</p>
+                                </div>
+                            </div>
+                            <div class="feature-card" style="padding: 6px 8px !important;">
+                                <div class="feature-icon"><i data-lucide="maximize"></i></div>
+                                <div class="flex-column" style="gap: 2px;">
+                                    <h4 class="feature-title">高保真性</h4>
+                                    <p class="feature-description">几何+物理+行为+规则四维建模</p>
+                                </div>
+                            </div>
+                            <div class="feature-card" style="padding: 6px 8px !important;">
+                                <div class="feature-icon"><i data-lucide="layers"></i></div>
+                                <div class="flex-column" style="gap: 2px;">
+                                    <h4 class="feature-title">多尺度性</h4>
+                                    <p class="feature-description">工厂→产线→工位→工序</p>
+                                </div>
+                            </div>
+                            <div class="feature-card" style="padding: 6px 8px !important;">
+                                <div class="feature-icon"><i data-lucide="refresh-cw"></i></div>
+                                <div class="flex-column" style="gap: 2px;">
+                                    <h4 class="feature-title">数据驱动</h4>
+                                    <p class="feature-description">IoT→影子状态树→三维渲染</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-glass" style="text-align: center; padding: 6px 10px !important;">
+                            <p style="font-weight: 600; color: var(--primary-color); margin: 0; font-size: 0.9rem;">View → App → Data → View 单向闭环</p>
+                        </div>
+                    </div>
+                    <div class="slide-video-wrap">
+                        <video src="assets/agv-simulation.mp4" poster="assets/slide-06-poster.jpg" controls preload="metadata" style="width:100%;display:block;max-height:240px;"></video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: 核心能力：事件闭环 -->
+        <div class="presentation-slide" data-slide="7">
+            <div class="slide-content animate-fade-in" style="padding: 30px 60px 10px;">
+                <div class="website-section-header" style="margin-bottom: 2px;">
+                    <span class="website-section-badge"><i data-lucide="zap"></i> Event Closed-Loop</span>
+                    <h2 class="website-section-title" style="font-size: 1.75rem; margin-bottom: 2px;">6. 核心能力：事件闭环管理</h2>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <div class="card-glass" style="padding: 6px 10px !important;">
+                            <div class="flex-row items-center gap-md">
+                                <i data-lucide="shield-check" class="icon-sm text-success"></i>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 0.8rem;">规则驱动</h3>
+                                    <p style="margin: 0; font-size: 0.72rem;">规则库 → 异常识别 → 分级预警 → 闭环</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-glass" style="padding: 6px 10px !important;">
+                            <div class="flex-row items-center gap-md">
+                                <i data-lucide="message-square" class="icon-sm" style="color: var(--primary-color);"></i>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 0.8rem;">意图驱动</h3>
+                                    <p style="margin: 0; font-size: 0.72rem;">自然语言 → AI分析 → 方案生成</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide-media" style="height: 120px; flex-shrink: 0;">
+                            <img src="assets/slide-07-events.jpg" alt="事件闭环处理界面" style="width:100%;height:100%;object-fit:cover;">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                        <div class="card-glass" style="padding: 4px 6px !important;">
+                            <i data-lucide="alert-circle" style="color: var(--warning-color); width: 14px; height: 14px;"></i>
+                            <h4 style="margin: 2px 0 0; font-size: 0.78rem;">生产计划偏差</h4>
+                            <p class="text-muted" style="margin: 0; font-size: 0.7rem;">自动识别延误，推送预警</p>
+                        </div>
+                        <div class="card-glass" style="padding: 4px 6px !important;">
+                            <i data-lucide="package" style="color: var(--primary-color); width: 14px; height: 14px;"></i>
+                            <h4 style="margin: 2px 0 0; font-size: 0.78rem;">物料齐套异常</h4>
+                            <p class="text-muted" style="margin: 0; font-size: 0.7rem;">追溯缺料，触发补料</p>
+                        </div>
+                        <div class="card-glass" style="padding: 4px 6px !important;">
+                            <i data-lucide="tool" style="color: var(--success-color); width: 14px; height: 14px;"></i>
+                            <h4 style="margin: 2px 0 0; font-size: 0.78rem;">设备维护事件</h4>
+                            <p class="text-muted" style="margin: 0; font-size: 0.7rem;">工单创建，周期跟踪</p>
+                        </div>
+                        <div class="card-glass" style="padding: 4px 6px !important;">
+                            <i data-lucide="eye" style="color: var(--primary-color); width: 14px; height: 14px;"></i>
+                            <h4 style="margin: 2px 0 0; font-size: 0.78rem;">EHS安全监控</h4>
+                            <p class="text-muted" style="margin: 0; font-size: 0.7rem;">AI视觉检测预警</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: 核心能力：AI赋能 -->
+        <div class="presentation-slide" data-slide="8">
+            <div class="slide-content animate-fade-in" style="padding: 30px 60px 10px;">
+                <div class="website-section-header" style="margin-bottom: 2px;">
+                    <span class="website-section-badge"><i data-lucide="zap"></i> AI-Powered Intelligence</span>
+                    <h2 class="website-section-title" style="font-size: 1.75rem; margin-bottom: 2px;">7. 核心能力：AI赋能智能管控</h2>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; align-items: stretch;">
+                    <div class="slide-media" style="height: 160px; flex-shrink: 0;">
+                        <img src="assets/slide-08-chatbi.jpg" alt="ChatBI AI助手" style="width:100%;height:100%;object-fit:cover;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <div class="card-glass" style="padding: 4px 8px !important;">
+                            <div class="flex-row items-center gap-md">
+                                <i data-lucide="bar-chart-2" class="icon-sm" style="color: var(--primary-color);"></i>
+                                <h4 style="margin: 0; font-size: 0.8rem;">ChatBI 智能洞察</h4>
+                            </div>
+                            <p class="text-muted" style="margin: 2px 0 0; font-size: 0.72rem;">自然语言查询 → 数据分析 → 可视化报表</p>
+                        </div>
+                        <div class="card-glass" style="padding: 4px 8px !important;">
+                            <div class="flex-row items-center gap-md">
+                                <i data-lucide="users" class="icon-sm" style="color: var(--primary-color);"></i>
+                                <h4 style="margin: 0; font-size: 0.8rem;">多Agent协同</h4>
+                            </div>
+                            <p class="text-muted" style="margin: 2px 0 0; font-size: 0.72rem;">意图理解 → 任务拆解 → 跨系统调用</p>
+                        </div>
+                        <div class="card-glass" style="padding: 4px 8px !important;">
+                            <div class="flex-row items-center gap-md">
+                                <i data-lucide="book-open" class="icon-sm" style="color: var(--primary-color);"></i>
+                                <h4 style="margin: 0; font-size: 0.8rem;">知识库增强</h4>
+                            </div>
+                            <p class="text-muted" style="margin: 2px 0 0; font-size: 0.72rem;">文档向量化 → 检索增强推理</p>
+                        </div>
+                        <div class="card-glass" style="padding: 4px 8px !important;">
+                            <div class="flex-row items-center gap-md">
+                                <i data-lucide="code" class="icon-sm" style="color: var(--success-color);"></i>
+                                <h4 style="margin: 0; font-size: 0.8rem;">AI IDE 轻应用</h4>
+                            </div>
+                            <p class="text-muted" style="margin: 2px 0 0; font-size: 0.72rem;">意图→轻应用，MCP标准化</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: 实施案例 -->
+        <div class="presentation-slide" data-slide="9">
+            <div class="slide-content animate-fade-in">
+                <div class="website-section-header" style="margin-bottom: 0.5rem;">
+                    <span class="website-section-badge"><i data-lucide="zap"></i> Implementation Case Study</span>
+                    <h2 class="website-section-title">8. 实施案例：某大型离散制造企业</h2>
+                </div>
+                <div class="grid-cols-2" style="gap: var(--spacing-lg); flex: 1; align-items: center;">
+                    <div class="card-glass flex-column" style="gap: var(--spacing-sm); padding: 1rem;">
+                        <h3 style="margin: 0 0 0.25rem; font-size: 1rem;">实施历程</h3>
+                        <div class="flex-column" style="gap: var(--spacing-xs, 8px);">
+                            <div class="card-glass" style="padding: 0.6rem 0.75rem;">
+                                <h4 class="card-title" style="font-size: 0.85rem;">阶段一：产线三维场景构建</h4>
+                                <p class="card-description" style="font-size: 0.78rem;">完成示范产线全要素三维建模，实现生产状态全景漫游</p>
+                            </div>
+                            <div class="card-glass" style="padding: 0.6rem 0.75rem;">
+                                <h4 class="card-title" style="font-size: 0.85rem;">阶段二：事件闭环验证</h4>
+                                <p class="card-description" style="font-size: 0.78rem;">验证生产计划偏差、物料齐套、设备维护三类事件的闭环处理</p>
+                            </div>
+                            <div class="card-glass" style="padding: 0.6rem 0.75rem;">
+                                <h4 class="card-title" style="font-size: 0.85rem;">阶段三：本体建模落地</h4>
+                                <p class="card-description" style="font-size: 0.78rem;">完成工厂实体对象本体建模，打通数据接入与图谱查询</p>
+                            </div>
+                            <div class="card-glass" style="padding: 0.6rem 0.75rem;">
+                                <h4 class="card-title" style="font-size: 0.85rem;">阶段四：ChatBI上线</h4>
+                                <p class="card-description" style="font-size: 0.78rem;">实现基于自然语言的数据统计分析，多Agent协同调用验证</p>
+                            </div>
+                        </div>
+                        <p class="text-muted" style="font-size: 0.78rem; text-align: center; margin: 0;">行业：复杂产品离散制造 | 规模：大型制造企业</p>
+                    </div>
+                    <div class="slide-video-wrap">
+                        <video src="assets/project-results.mp4" poster="assets/slide-09-poster.jpg" controls preload="metadata" style="width:100%;display:block;max-height:380px;"></video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: 商业价值与愿景 -->
+        <div class="presentation-slide" data-slide="10">
+            <div class="slide-content animate-fade-in">
+                <div class="website-section-header" style="margin-bottom: 0.25rem;">
+                    <span class="website-section-badge"><i data-lucide="zap"></i> Business Value & Vision</span>
+                    <h2 class="website-section-title">9. 商业价值与未来愿景</h2>
+                </div>
+                <div class="grid-cols-2" style="gap: var(--spacing-lg); flex: 1; align-items: start;">
+                    <div class="flex-column" style="gap: var(--spacing-sm);">
+                        <div class="card-glass flex-row items-center" style="gap: var(--spacing-md); padding: 0.6rem;">
+                            <i data-lucide="zap" style="color: var(--warning-color); flex-shrink: 0;"></i>
+                            <div>
+                                <h3 style="margin: 0; font-size: 0.9rem;">效率提升</h3>
+                                <div style="color: var(--primary-color); font-size: 1.25rem; font-weight: bold;">分钟级响应</div>
+                                <p class="text-muted" style="margin: 0; font-size: 0.78rem;">异常事件响应缩短至分钟级（标杆企业提升30-40%）</p>
+                            </div>
+                        </div>
+                        <div class="card-glass flex-row items-center" style="gap: var(--spacing-md); padding: 0.6rem;">
+                            <i data-lucide="shield" style="color: var(--success-color); flex-shrink: 0;"></i>
+                            <div>
+                                <h3 style="margin: 0; font-size: 0.9rem;">质量改善</h3>
+                                <div style="color: var(--primary-color); font-size: 1.25rem; font-weight: bold;">全追溯</div>
+                                <p class="text-muted" style="margin: 0; font-size: 0.78rem;">全流程数据可追溯，根因分析深度至全要素层级</p>
+                            </div>
+                        </div>
+                        <div class="card-glass flex-row items-center" style="gap: var(--spacing-md); padding: 0.6rem;">
+                            <i data-lucide="brain" style="color: var(--primary-color); flex-shrink: 0;"></i>
+                            <div>
+                                <h3 style="margin: 0; font-size: 0.9rem;">决策优化</h3>
+                                <div style="color: var(--primary-color); font-size: 1.25rem; font-weight: bold;">AI驱动</div>
+                                <p class="text-muted" style="margin: 0; font-size: 0.78rem;">从被动响应到主动预判，从人工决策到智能辅助</p>
+                            </div>
+                        </div>
+                        <div class="card-glass" style="padding: 0.5rem 0.75rem;">
+                            <div class="flex-row justify-center gap-sm" style="flex-wrap: wrap;">
+                                <span class="badge badge-primary animate-breathe">未来可推演</span>
+                                <span class="badge badge-success animate-breathe">当下可镜像</span>
+                                <span class="badge badge-warning animate-breathe">过去可追溯</span>
+                                <span class="badge badge-primary animate-breathe">智能管控</span>
+                            </div>
+                            <p style="font-weight: bold; text-align: center; margin: 0.25rem 0 0; font-size: 0.95rem;">构建虚实共生的智慧工厂</p>
+                        </div>
+                    </div>
+                    <div class="slide-media" style="height: 340px;">
+                        <img src="assets/slide-10-value.jpg" alt="AGV物流仿真总览看板" style="width:100%;height:100%;object-fit:cover;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: 结语 -->
+        <div class="presentation-slide slide-closing" data-slide="11">
+            <div class="slide-content animate-fade-in">
+                <div class="slide-media" style="width: 100%; max-width: 900px; height: 200px; margin: 0 auto 1.5rem;">
+                    <img src="assets/slide-11-closing.jpg" alt="EHS智能行为监测系统" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="card-glass" style="padding: 2.5rem; max-width: 900px; width: 100%; margin: 0 auto;">
+                    <h1 class="website-hero-title website-text-gradient">虚实共生，智造未来</h1>
+                    <p class="website-hero-description">Building the Intelligent Factory of Tomorrow</p>
+                    <div class="website-hero-badge">
+                        <span class="flex-row items-center gap-md justify-center"><i data-lucide="rocket" class="icon-sm"></i> 灵境元宇宙工厂操作系统</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation, Theme Toggle, Indicators, Progress Bar
+         are all created by PresentationController in script.js.
+         The inline <style> above provides their styling. -->
+
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
